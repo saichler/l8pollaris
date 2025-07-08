@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package types;
+
+option java_multiple_files = true;
+option java_outer_classname = "Types";
+option java_package = "com.pollaris.types";
+option go_package = "./types";
+
+message Pollaris {
+  string name = 1;
+  string vendor = 2;
+  string series = 3;
+  string family = 4;
+  string software = 5;
+  string hardware = 6;
+  string version = 7;
+  repeated string groups = 8;
+  repeated Poll polling = 9;
+}
+
+message Poll {
+  string what = 1;
+  Operation operation = 2;
+  Protocol  protocol = 3;
+  int64 cadence = 4;
+  int64 timeout = 5;
+  Parse parsing = 6;
+}
+
+message Parse {
+  repeated Attribute attributes = 1;
+}
+
+enum Operation {
+  Invalid_Operation = 0;
+  Get = 1;
+  Map = 2;
+  Table = 3;
+}
+
+enum Protocol {
+  Invalid_Protocol = 0;
+  SSH = 1;
+  SNMPV2 = 2;
+  SNMPV3 = 3;
+  RESTCONF = 4;
+  NETCONF = 5;
+  GRPC = 6;
+  K8s = 7;
+}
+
+message Attribute {
+  string property_id = 1;
+  repeated Rule rules = 2;
+}
+
+message Rule {
+  string name = 1;
+  map<string, Parameter> params = 2;
+}
+
+message Parameter {
+  string name = 1;
+  string value = 2;
+}
