@@ -218,3 +218,19 @@ func Pollaris(resource ifs.IResources) *PollarisCenter {
 	}
 	return (sp.(*PollarisService)).pollarisCenter
 }
+
+func Poll(pollarisName, pollName string, resources ifs.IResources) (*types.Poll, error) {
+	pollarisCenter := Pollaris(resources)
+	if pollarisCenter == nil {
+		return nil, resources.Logger().Error("Cannot find pollaris service")
+	}
+	pollaris := pollarisCenter.PollarisByName(pollarisName)
+	if pollaris == nil {
+		return nil, resources.Logger().Error("Cannot find pollaris " + pollName)
+	}
+	poll, ok := pollaris.Polling[pollName]
+	if !ok {
+		return nil, resources.Logger().Error("Cannot find poll " + pollName + " in pollaris " + pollaris.Name)
+	}
+	return poll, nil
+}
