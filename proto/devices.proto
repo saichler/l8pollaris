@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package types;
+
+option java_multiple_files = true;
+option java_outer_classname = "Types";
+option java_package = "com.device.types";
+option go_package = "./types";
+
+import "pollaris.proto";
+
+message Device {
+  string device_id = 1;
+  DeviceServiceInfo collect_service = 2;
+  DeviceServiceInfo parsing_service = 3;
+  DeviceServiceInfo inventory_service = 4;
+  map<string, Host> hosts = 5;
+}
+
+message DeviceServiceInfo {
+  string service_name = 1;
+  int32  service_area = 2;
+}
+
+message Host {
+  string device_id = 1;
+  map<int32, Connection> configs = 3;
+  map<string, string> polls = 4;
+  map<string, string> groups = 5;
+}
+
+message Connection {
+  Protocol protocol = 1;
+  string addr = 2;
+  int32 port = 3;
+  string read_community = 4;
+  string write_community = 5;
+  string username = 6;
+  string password = 7;
+  repeated string prompt = 8;
+  string terminal = 9;
+  repeated string terminal_commands = 10;
+  int64 timeout = 11;
+  string KubeConfig = 12;
+  string KukeContext = 13;
+}
+
+message CMap {
+  map<string, bytes> data = 1;
+}
+
+message CTable {
+  map<int32, string> columns = 1;
+  map<int32, CRow> rows = 2;
+}
+
+message CRow {
+  map<int32, bytes> data = 1;
+}
