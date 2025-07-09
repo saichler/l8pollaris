@@ -16,20 +16,17 @@ message Pollaris {
   string hardware = 6;
   string version = 7;
   repeated string groups = 8;
-  repeated Poll polling = 9;
+  map<string, Poll> polling = 9;
 }
 
 message Poll {
-  string what = 1;
-  Operation operation = 2;
-  Protocol  protocol = 3;
-  int64 cadence = 4;
-  int64 timeout = 5;
-  Parse parsing = 6;
-}
-
-message Parse {
-  repeated Attribute attributes = 1;
+  string name = 1;
+  string what = 2;
+  Operation operation = 3;
+  Protocol  protocol = 4;
+  int64 cadence = 5;
+  int64 timeout = 6;
+  repeated Attribute attributes = 7;
 }
 
 enum Operation {
