@@ -234,3 +234,15 @@ func Poll(pollarisName, pollName string, resources ifs.IResources) (*types.Poll,
 	}
 	return poll, nil
 }
+
+func PollarisByKey(resources ifs.IResources, args ...string) (*types.Pollaris, error) {
+	pollarisCenter := Pollaris(resources)
+	if pollarisCenter == nil {
+		return nil, resources.Logger().Error("Cannot find pollaris service")
+	}
+	p := pollarisCenter.PollarisByKey(args...)
+	if p == nil {
+		return nil, resources.Logger().Error("Cannot find pollaris for keys ", args)
+	}
+	return p, nil
+}
