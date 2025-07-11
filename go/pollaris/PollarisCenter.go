@@ -185,6 +185,18 @@ func (this *PollarisCenter) PollarisByKey(args ...string) *types.Pollaris {
 	return this.PollarisByKey(args[0 : len(args)-1]...)
 }
 
+func (this *PollarisCenter) Poll(pollarisName, jobName string) *types.Poll {
+	pollaris := this.PollarisByName(pollarisName)
+	if pollaris == nil {
+		return nil
+	}
+	poll, ok := pollaris.Polling[jobName]
+	if !ok {
+		return nil
+	}
+	return poll
+}
+
 func (this *PollarisCenter) Names(groupName, vendor, series, family, software, hardware, version string) []string {
 	this.mtx.RLock()
 	defer this.mtx.RUnlock()
