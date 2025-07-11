@@ -246,3 +246,15 @@ func PollarisByKey(resources ifs.IResources, args ...string) (*types.Pollaris, e
 	}
 	return p, nil
 }
+
+func PollarisByGroup(resources ifs.IResources, groupName, vendor, series, family, software, hardware, version string) ([]*types.Pollaris, error) {
+	pollarisCenter := Pollaris(resources)
+	if pollarisCenter == nil {
+		return nil, resources.Logger().Error("Cannot find pollaris service")
+	}
+	p := pollarisCenter.PollsByGroup(groupName, vendor, series, family, software, hardware, version)
+	if p == nil {
+		return nil, resources.Logger().Error("Cannot find pollaris for group ", groupName)
+	}
+	return p, nil
+}
