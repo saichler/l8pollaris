@@ -38,7 +38,15 @@ func (this *PollarisCenter) getPollName(key string) (string, bool) {
 func (this *PollarisCenter) getGroup(name string) map[string]string {
 	this.mtx.RLock()
 	defer this.mtx.RUnlock()
-	return this.groups[name]
+	group := this.groups[name]
+	if group != nil {
+		result := make(map[string]string)
+		for k, v := range group {
+			result[k] = v
+		}
+		return result
+	}
+	return nil
 }
 
 func (this *PollarisCenter) deleteFromGroup(gEntry map[string]string, key string) {
