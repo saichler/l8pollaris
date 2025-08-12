@@ -37,14 +37,14 @@ enum Operation {
 }
 
 enum Protocol {
-  Protocol_Invalid = 0;
-  Protocol_SSH = 1;
-  Protocol_SNMPV2 = 2;
-  Protocol_SNMPV3 = 3;
-  Protocol_RESTCONF = 4;
-  Protocol_NETCONF = 5;
-  Protocol_GRPC = 6;
-  Protocol_K8s = 7;
+  PInvalid_Protocol = 0;
+  PSSH = 1;
+  PSNMPV2 = 2;
+  PSNMPV3 = 3;
+  PRESTCONF = 4;
+  PNETCONF = 5;
+  PGRPC = 6;
+  PK8s = 7;
 }
 
 message Attribute {

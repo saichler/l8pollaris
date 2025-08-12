@@ -281,7 +281,7 @@ func (x *Connection) GetProtocol() Protocol {
 	if x != nil {
 		return x.Protocol
 	}
-	return Protocol_Protocol_Invalid
+	return Protocol_PInvalid_Protocol
 }
 
 func (x *Connection) GetAddr() string {
