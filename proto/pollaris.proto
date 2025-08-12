@@ -41,8 +41,8 @@ enum Protocol {
   SSH = 1;
   SNMPV2 = 2;
   SNMPV3 = 3;
-  RESTCONF = 4;
-  NETCONF = 5;
+  REST_CONF = 4;
+  NET_CONF = 5;
   GRPC = 6;
   K8s = 7;
 }
