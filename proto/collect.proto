@@ -9,7 +9,7 @@ option go_package = "./types";
 
 import "devices.proto";
 
-message Job {
+message CJob {
   string error = 1;
   bytes result = 2;
   int64 started = 3;
