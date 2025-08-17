@@ -31,9 +31,9 @@ message Poll {
 
 enum Operation {
   Invalid_Operation = 0;
-  Get = 1;
-  Map = 2;
-  Table = 3;
+  OGet = 1;
+  OMap = 2;
+  OTable = 3;
 }
 
 enum Protocol {
