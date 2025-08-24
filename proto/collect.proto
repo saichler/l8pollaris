@@ -22,4 +22,5 @@ message CJob {
   string job_name = 10;
   DeviceServiceInfo iService = 11;
   DeviceServiceInfo pService = 12;
+  map<string, string> arguments = 13;
 }
