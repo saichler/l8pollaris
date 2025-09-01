@@ -9,6 +9,10 @@ option go_package = "./types";
 
 import "pollaris.proto";
 
+message DeviceList {
+  repeated Device list = 1;
+}
+
 message Device {
   string device_id = 1;
   DeviceServiceInfo collect_service = 2;
