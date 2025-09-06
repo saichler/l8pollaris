@@ -54,7 +54,7 @@ func (this *PollarisService) GetCopy(pb ifs.IElements, vnic ifs.IVNic) ifs.IElem
 func (this *PollarisService) Failed(pb ifs.IElements, vnic ifs.IVNic, msg *ifs.Message) ifs.IElements {
 	return nil
 }
-func (this *PollarisService) TransactionMethod() ifs.ITransactionMethod {
+func (this *PollarisService) TransactionConfig() ifs.ITransactionConfig {
 	return nil
 }
 func (this *PollarisService) WebService() ifs.IWebService {
