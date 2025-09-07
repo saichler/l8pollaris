@@ -23,4 +23,5 @@ message CJob {
   DeviceServiceInfo iService = 11;
   DeviceServiceInfo pService = 12;
   map<string, string> arguments = 13;
+  bytes lastResult = 14;
 }
