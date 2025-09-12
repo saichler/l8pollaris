@@ -2,10 +2,13 @@ package pollaris
 
 import (
 	"errors"
+
 	"github.com/saichler/l8pollaris/go/types"
 	"github.com/saichler/l8services/go/services/dcache"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8utils/go/utils/strings"
+	"github.com/saichler/reflect/go/reflect/introspecting"
+
 	"sync"
 )
 
@@ -19,8 +22,10 @@ type PollarisCenter struct {
 
 func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListener) *PollarisCenter {
 	pc := &PollarisCenter{}
-	pc.name2Poll = dcache.NewDistributedCache(ServiceName, ServiceArea, "Pollaris",
-		resources.SysConfig().LocalUuid, listener, resources)
+	node, _ := resources.Introspector().Inspect(&types.Pollaris{})
+	introspecting.AddPrimaryKeyDecorator(node, "Name")
+	pc.name2Poll = dcache.NewDistributedCache(ServiceName, ServiceArea, &types.Pollaris{}, nil,
+		listener, resources)
 	pc.key2Name = make(map[string]string)
 	pc.groups = make(map[string]map[string]string)
 	pc.log = resources.Logger()
@@ -62,7 +67,11 @@ func (this *PollarisCenter) deleteFromKey2Name(key string) {
 }
 
 func (this *PollarisCenter) deleteExisting(pollaris *types.Pollaris, key string) {
-	existPoll := this.name2Poll.Get(pollaris.Name).(*types.Pollaris)
+	ePoll, _ := this.name2Poll.Get(pollaris)
+	if ePoll == nil {
+		return
+	}
+	existPoll, _ := ePoll.(*types.Pollaris)
 	if existPoll.Groups != nil {
 		for _, gName := range existPoll.Groups {
 			gEntry := this.getGroup(gName)
@@ -100,7 +109,7 @@ func (this *PollarisCenter) Add(pollaris *types.Pollaris, isNotification bool) e
 		this.deleteExisting(pollaris, key)
 	}
 
-	this.name2Poll.Put(pollaris.Name, pollaris, isNotification)
+	this.name2Poll.Put(pollaris, isNotification)
 
 	this.mtx.Lock()
 	defer this.mtx.Unlock()
@@ -140,7 +149,7 @@ func (this *PollarisCenter) Update(pollaris *types.Pollaris, isNotification bool
 		this.deleteExisting(pollaris, key)
 	}
 
-	this.name2Poll.Put(pollaris.Name, pollaris, isNotification)
+	this.name2Poll.Put(pollaris, isNotification)
 
 	this.mtx.Lock()
 	defer this.mtx.Unlock()
@@ -167,7 +176,9 @@ func (this *PollarisCenter) PollarisByName(name string) *types.Pollaris {
 	if this == nil || this.name2Poll == nil {
 		return nil
 	}
-	poll, _ := this.name2Poll.Get(name).(*types.Pollaris)
+	filter := &types.Pollaris{Name: name}
+	p, _ := this.name2Poll.Get(filter)
+	poll, _ := p.(*types.Pollaris)
 	return poll
 }
 
@@ -177,7 +188,9 @@ func (this *PollarisCenter) PollarisByKey(args ...string) *types.Pollaris {
 	}
 	if len(args) == 1 {
 		pollName := this.key2Name[args[0]]
-		poll, _ := this.name2Poll.Get(pollName).(*types.Pollaris)
+		filter := &types.Pollaris{Name: pollName}
+		p, _ := this.name2Poll.Get(filter)
+		poll, _ := p.(*types.Pollaris)
 		return poll
 	}
 	buff := strings.New()
@@ -187,7 +200,9 @@ func (this *PollarisCenter) PollarisByKey(args ...string) *types.Pollaris {
 	}
 	p, ok := this.getPollName(buff.String())
 	if ok {
-		poll, _ := this.name2Poll.Get(p).(*types.Pollaris)
+		filter := &types.Pollaris{Name: p}
+		f, _ := this.name2Poll.Get(filter)
+		poll, _ := f.(*types.Pollaris)
 		return poll
 	}
 	return this.PollarisByKey(args[0 : len(args)-1]...)
