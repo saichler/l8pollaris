@@ -30,4 +30,5 @@ message CJob {
 message CadencePlan {
   repeated int64 cadences = 1;
   int32 current = 2;
+  bool enabled = 3;
 }
