@@ -64,6 +64,7 @@ message Parameter {
 
 message CadencePlan {
   repeated int64 cadences = 1;
-  int32 current = 2;
-  bool enabled = 3;
+  repeated int64 startups = 2;
+  int32 current = 3;
+  bool enabled = 4;
 }
