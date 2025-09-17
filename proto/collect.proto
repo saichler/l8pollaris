@@ -14,7 +14,7 @@ message CJob {
   bytes result = 2;
   int64 started = 3;
   int64 ended = 4;
-  int64 cadence = 5;
+  CadencePlan cadence = 5;
   int64 timeout = 6;
   string device_id = 7;
   string host_id = 8;
@@ -25,4 +25,9 @@ message CJob {
   map<string, string> arguments = 13;
   bytes lastResult = 14;
   int32 error_count = 15;
+}
+
+message CadencePlan {
+  repeated int64 cadences = 1;
+  int32 current = 2;
 }
