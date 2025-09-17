@@ -8,6 +8,7 @@ option java_package = "com.jobs.types";
 option go_package = "./types";
 
 import "devices.proto";
+import "pollaris.proto";
 
 message CJob {
   string error = 1;
@@ -25,10 +26,4 @@ message CJob {
   map<string, string> arguments = 13;
   bytes lastResult = 14;
   int32 error_count = 15;
-}
-
-message CadencePlan {
-  repeated int64 cadences = 1;
-  int32 current = 2;
-  bool enabled = 3;
 }

@@ -24,7 +24,7 @@ message Poll {
   string what = 2;
   Operation operation = 3;
   Protocol  protocol = 4;
-  int64 cadence = 5;
+  CadencePlan cadence = 5;
   int64 timeout = 6;
   repeated Attribute attributes = 7;
 }
@@ -60,4 +60,10 @@ message Rule {
 message Parameter {
   string name = 1;
   string value = 2;
+}
+
+message CadencePlan {
+  repeated int64 cadences = 1;
+  int32 current = 2;
+  bool enabled = 3;
 }
