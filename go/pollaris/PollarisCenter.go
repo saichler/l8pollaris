@@ -91,15 +91,15 @@ func (this *PollarisCenter) AddAll(pollarises []*l8poll.L8Pollaris) {
 
 func (this *PollarisCenter) Add(l8pollaris *l8poll.L8Pollaris, isNotification bool) error {
 	if l8pollaris.Name == "" {
-		return errors.New("l8pollaris does not contain a Name")
+		return errors.New("Pollaris does not contain a Name")
 	}
 	if l8pollaris.Polling == nil {
-		return errors.New("l8pollaris does not contain any polling information")
+		return errors.New("Pollaris does not contain any polling information")
 	}
 
 	for _, poll := range l8pollaris.Polling {
 		if poll.What == "" {
-			return errors.New("l8pollaris " + l8pollaris.Name + ": poll does not contain a What value")
+			return errors.New("Pollaris " + l8pollaris.Name + ": poll does not contain a What value")
 		}
 	}
 
@@ -130,15 +130,15 @@ func (this *PollarisCenter) Add(l8pollaris *l8poll.L8Pollaris, isNotification bo
 
 func (this *PollarisCenter) Update(l8pollaris *l8poll.L8Pollaris, isNotification bool) error {
 	if l8pollaris.Name == "" {
-		return errors.New("l8pollaris does not contain a Name")
+		return errors.New("Pollaris does not contain a Name")
 	}
 	if l8pollaris.Polling == nil {
-		return errors.New("l8pollaris does not contain any polling information")
+		return errors.New("Pollaris does not contain any polling information")
 	}
 
 	for _, poll := range l8pollaris.Polling {
 		if poll.What == "" {
-			return errors.New("l8pollaris " + l8pollaris.Name + ": poll does not contain a What value")
+			return errors.New("Pollaris " + l8pollaris.Name + ": poll does not contain a What value")
 		}
 	}
 
@@ -246,7 +246,7 @@ func (this *PollarisCenter) PollsByGroup(groupName, vendor, series, family, soft
 	return result
 }
 
-func l8pollaris(resource ifs.IResources) *PollarisCenter {
+func Pollaris(resource ifs.IResources) *PollarisCenter {
 	sp, ok := resource.Services().ServiceHandler(ServiceName, ServiceArea)
 	if !ok {
 		return nil
@@ -255,41 +255,41 @@ func l8pollaris(resource ifs.IResources) *PollarisCenter {
 }
 
 func Poll(pollarisName, pollName string, resources ifs.IResources) (*l8poll.L8Poll, error) {
-	pollarisCenter := l8pollaris(resources)
+	pollarisCenter := Pollaris(resources)
 	if pollarisCenter == nil {
-		return nil, resources.Logger().Error("Cannot find l8pollaris service")
+		return nil, resources.Logger().Error("Cannot find Pollaris service")
 	}
 	l8pollaris := pollarisCenter.PollarisByName(pollarisName)
 	if l8pollaris == nil {
-		return nil, resources.Logger().Error("Cannot find l8pollaris " + pollName)
+		return nil, resources.Logger().Error("Cannot find Pollaris " + pollName)
 	}
 	poll, ok := l8pollaris.Polling[pollName]
 	if !ok {
-		return nil, resources.Logger().Error("Cannot find poll " + pollName + " in l8pollaris " + l8pollaris.Name)
+		return nil, resources.Logger().Error("Cannot find poll " + pollName + " in Pollaris " + l8pollaris.Name)
 	}
 	return poll, nil
 }
 
 func PollarisByKey(resources ifs.IResources, args ...string) (*l8poll.L8Pollaris, error) {
-	pollarisCenter := l8pollaris(resources)
+	pollarisCenter := Pollaris(resources)
 	if pollarisCenter == nil {
-		return nil, resources.Logger().Error("Cannot find l8pollaris service")
+		return nil, resources.Logger().Error("Cannot find Pollaris service")
 	}
 	p := pollarisCenter.PollarisByKey(args...)
 	if p == nil {
-		return nil, resources.Logger().Error("Cannot find l8pollaris for keys ", args)
+		return nil, resources.Logger().Error("Cannot find Pollaris for keys ", args)
 	}
 	return p, nil
 }
 
 func PollarisByGroup(resources ifs.IResources, groupName, vendor, series, family, software, hardware, version string) ([]*l8poll.L8Pollaris, error) {
-	pollarisCenter := l8pollaris(resources)
+	pollarisCenter := Pollaris(resources)
 	if pollarisCenter == nil {
-		return nil, resources.Logger().Error("Cannot find l8pollaris service")
+		return nil, resources.Logger().Error("Cannot find Pollaris service")
 	}
 	p := pollarisCenter.PollsByGroup(groupName, vendor, series, family, software, hardware, version)
 	if p == nil {
-		return nil, resources.Logger().Error("Cannot find l8pollaris for group ", groupName)
+		return nil, resources.Logger().Error("Cannot find Pollaris for group ", groupName)
 	}
 	return p, nil
 }
