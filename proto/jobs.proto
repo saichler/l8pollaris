@@ -17,7 +17,7 @@ message CJob {
   int64 ended = 4;
   L8C_CadencePlan cadence = 5;
   int64 timeout = 6;
-  string device_id = 7;
+  string target_id = 7;
   string host_id = 8;
   string pollaris_name = 9;
   string job_name = 10;
