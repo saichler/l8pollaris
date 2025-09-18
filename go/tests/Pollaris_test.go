@@ -5,7 +5,6 @@ import (
 
 	"github.com/saichler/l8collector/go/collector/common"
 	"github.com/saichler/l8parser/go/parser/boot"
-	"github.com/saichler/l8pollaris/go/pollaris"
 )
 
 func TestMain(m *testing.M) {
@@ -19,14 +18,14 @@ func TestPollaris(t *testing.T) {
 	vnic.Resources().Registry().Register(pollaris.PollarisService{})
 	vnic.Resources().Services().Activate(pollaris.ServiceType, pollaris.ServiceName, 0, vnic.Resources(), vnic)
 	p := pollaris.Pollaris(vnic.Resources())
-	pollars := boot.CreateBoot01()
-	err := p.Add(pollars, false)
+	pollrs := boot.CreateBoot01()
+	err := p.Add(pollrs, false)
 	if err != nil {
 		vnic.Resources().Logger().Fail(t, err.Error())
 		return
 	}
 
-	byName := p.PollarisByName(pollars.Name)
+	byName := p.PollarisByName(pollrs.Name)
 	if byName == nil {
 		vnic.Resources().Logger().Fail(t, "No such pollaris")
 		return

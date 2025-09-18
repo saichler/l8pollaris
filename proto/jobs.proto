@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package types;
+package l8poll;
 
 option java_multiple_files = true;
-option java_outer_classname = "Types";
+option java_outer_classname = "L8Types";
 option java_package = "com.jobs.types";
-option go_package = "./types";
+option go_package = "./types/l8poll";
 
-import "devices.proto";
+import "targets.proto";
 import "pollaris.proto";
 
 message CJob {
@@ -15,14 +15,14 @@ message CJob {
   bytes result = 2;
   int64 started = 3;
   int64 ended = 4;
-  CadencePlan cadence = 5;
+  L8C_CadencePlan cadence = 5;
   int64 timeout = 6;
   string device_id = 7;
   string host_id = 8;
   string pollaris_name = 9;
   string job_name = 10;
-  DeviceServiceInfo iService = 11;
-  DeviceServiceInfo pService = 12;
+  L8ServiceInfo iService = 11;
+  L8ServiceInfo pService = 12;
   map<string, string> arguments = 13;
   bytes lastResult = 14;
   int32 error_count = 15;

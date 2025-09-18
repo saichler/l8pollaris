@@ -1,40 +1,40 @@
 syntax = "proto3";
 
-package types;
+package l8poll;
 
 option java_multiple_files = true;
-option java_outer_classname = "Types";
-option java_package = "com.device.types";
-option go_package = "./types";
+option java_outer_classname = "L8Types";
+option java_package = "com.l8targets.types";
+option go_package = "./types/l8poll";
 
 import "pollaris.proto";
 
-message DeviceList {
-  repeated Device list = 1;
+message L8C_TargetList {
+  repeated L8C_Target list = 1;
 }
 
-message Device {
-  string device_id = 1;
-  DeviceServiceInfo collect_service = 2;
-  DeviceServiceInfo parsing_service = 3;
-  DeviceServiceInfo inventory_service = 4;
-  map<string, Host> hosts = 5;
+message L8C_Target {
+  string target_id = 1;
+  L8ServiceInfo collect_service = 2;
+  L8ServiceInfo parsing_service = 3;
+  L8ServiceInfo inventory_service = 4;
+  map<string, L8C_Host> hosts = 5;
 }
 
-message DeviceServiceInfo {
+message L8ServiceInfo {
   string service_name = 1;
   int32  service_area = 2;
 }
 
-message Host {
-  string device_id = 1;
-  map<int32, Connection> configs = 3;
+message L8C_Host {
+  string target_id = 1;
+  map<int32, L8T_Connection> configs = 3;
   map<string, string> polls = 4;
   map<string, string> groups = 5;
 }
 
-message Connection {
-  Protocol protocol = 1;
+message L8T_Connection {
+  L8C_Protocol protocol = 1;
   string addr = 2;
   int32 port = 3;
   string read_community = 4;
