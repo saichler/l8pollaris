@@ -8,6 +8,7 @@ option java_package = "com.l8targets.types";
 option go_package = "./types/l8poll";
 
 import "pollaris.proto";
+import "services.proto";
 
 message L8C_TargetList {
   repeated L8C_Target list = 1;
@@ -15,15 +16,9 @@ message L8C_TargetList {
 
 message L8C_Target {
   string target_id = 1;
-  L8ServiceInfo collect_service = 2;
-  L8ServiceInfo parsing_service = 3;
-  L8ServiceInfo inventory_service = 4;
-  map<string, L8C_Host> hosts = 5;
-}
-
-message L8ServiceInfo {
-  string service_name = 1;
-  int32  service_area = 2;
+  l8services.L8ServiceLink link_p = 2;
+  l8services.L8ServiceLink link_d = 3;
+  map<string, L8C_Host> hosts = 4;
 }
 
 message L8C_Host {

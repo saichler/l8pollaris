@@ -9,6 +9,7 @@ option go_package = "./types/l8poll";
 
 import "targets.proto";
 import "pollaris.proto";
+import "services.proto";
 
 message CJob {
   string error = 1;
@@ -21,8 +22,8 @@ message CJob {
   string host_id = 8;
   string pollaris_name = 9;
   string job_name = 10;
-  L8ServiceInfo iService = 11;
-  L8ServiceInfo pService = 12;
+  l8services.L8ServiceLink link_p = 11;
+  l8services.L8ServiceLink link_d = 12;
   map<string, string> arguments = 13;
   bytes lastResult = 14;
   int32 error_count = 15;

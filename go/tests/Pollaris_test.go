@@ -2,8 +2,10 @@ package tests
 
 import (
 	"testing"
-	//"github.com/saichler/l8collector/go/collector/common"
-	//"github.com/saichler/l8parser/go/parser/boot"
+
+	"github.com/saichler/l8collector/go/collector/common"
+	"github.com/saichler/l8parser/go/parser/boot"
+	"github.com/saichler/l8pollaris/go/pollaris"
 )
 
 func TestMain(m *testing.M) {
