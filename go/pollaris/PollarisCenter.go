@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	"github.com/saichler/l8pollaris/go/types/l8poll"
+	"github.com/saichler/l8reflect/go/reflect/introspecting"
 	"github.com/saichler/l8services/go/services/dcache"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8utils/go/utils/strings"
-	"github.com/saichler/l8reflect/go/reflect/introspecting"
 
 	"sync"
 )
@@ -20,11 +20,11 @@ type PollarisCenter struct {
 	mtx       *sync.RWMutex
 }
 
-func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListener) *PollarisCenter {
+func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListener, initElements []interface{}) *PollarisCenter {
 	pc := &PollarisCenter{}
 	node, _ := resources.Introspector().Inspect(&l8poll.L8Pollaris{})
 	introspecting.AddPrimaryKeyDecorator(node, "Name")
-	pc.name2Poll = dcache.NewDistributedCache(ServiceName, ServiceArea, &l8poll.L8Pollaris{}, nil,
+	pc.name2Poll = dcache.NewDistributedCache(ServiceName, ServiceArea, &l8poll.L8Pollaris{}, initElements,
 		listener, resources)
 	pc.key2Name = make(map[string]string)
 	pc.groups = make(map[string]map[string]string)
