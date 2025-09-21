@@ -21,7 +21,14 @@ type PollarisService struct {
 func (this *PollarisService) Activate(serviceName string, serviceArea byte,
 	r ifs.IResources, l ifs.IServiceCacheListener, args ...interface{}) error {
 	r.Registry().Register(&l8poll.L8Pollaris{})
-	this.pollarisCenter = newPollarisCenter(r, l)
+	var data []interface{}
+	if args != nil {
+		d, ok := args[0].([]interface{})
+		if ok {
+			data = d
+		}
+	}
+	this.pollarisCenter = newPollarisCenter(r, l, data)
 	this.serviceArea = serviceArea
 	return nil
 }
