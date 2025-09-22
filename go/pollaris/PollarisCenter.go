@@ -25,7 +25,7 @@ func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListe
 	node, _ := resources.Introspector().Inspect(&l8poll.L8Pollaris{})
 	introspecting.AddPrimaryKeyDecorator(node, "Name")
 	if initElements != nil {
-		resources.Logger().Info("Initializing pollarisCenter with init elements")
+		resources.Logger().Info("Initializing pollarisCenter with init elements ", len(initElements))
 	} else {
 		resources.Logger().Info("Initializing pollarisCenter with no init elements")
 	}
