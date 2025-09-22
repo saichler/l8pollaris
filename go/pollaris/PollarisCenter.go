@@ -24,7 +24,12 @@ func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListe
 	pc := &PollarisCenter{}
 	node, _ := resources.Introspector().Inspect(&l8poll.L8Pollaris{})
 	introspecting.AddPrimaryKeyDecorator(node, "Name")
-	pc.name2Poll = dcache.NewDistributedCache(ServiceName, ServiceArea, &l8poll.L8Pollaris{}, initElements,
+	if initElements != nil {
+		resources.Logger().Info("Initializing pollarisCenter with init elements")
+	} else {
+		resources.Logger().Info("Initializing pollarisCenter with no init elements")
+	}
+	pc.name2Poll = dcache.NewDistributedCacheNoSync(ServiceName, ServiceArea, &l8poll.L8Pollaris{}, initElements,
 		listener, resources)
 	pc.key2Name = make(map[string]string)
 	pc.groups = make(map[string]map[string]string)
