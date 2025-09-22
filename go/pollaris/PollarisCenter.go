@@ -26,6 +26,9 @@ func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListe
 	introspecting.AddPrimaryKeyDecorator(node, "Name")
 	if initElements != nil {
 		resources.Logger().Info("Initializing pollarisCenter with init elements ", len(initElements))
+		for _, element := range initElements {
+			pc.addInit(element.(*l8poll.L8Pollaris))
+		}
 	} else {
 		resources.Logger().Info("Initializing pollarisCenter with no init elements")
 	}
@@ -131,6 +134,21 @@ func (this *PollarisCenter) Add(l8pollaris *l8poll.L8Pollaris, isNotification bo
 		}
 	}
 	return nil
+}
+
+func (this *PollarisCenter) addInit(p *l8poll.L8Pollaris) {
+	key := this.PollarisKey(p)
+	this.key2Name[key] = p.Name
+	if p.Groups != nil {
+		for _, gName := range p.Groups {
+			gEntry, ok := this.groups[gName]
+			if !ok {
+				this.groups[gName] = make(map[string]string)
+				gEntry = this.groups[gName]
+			}
+			gEntry[key] = p.Name
+		}
+	}
 }
 
 func (this *PollarisCenter) Update(l8pollaris *l8poll.L8Pollaris, isNotification bool) error {
