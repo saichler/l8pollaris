@@ -23,6 +23,9 @@ type PollarisCenter struct {
 func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListener, initElements []interface{}) *PollarisCenter {
 	pc := &PollarisCenter{}
 	pc.key2Name = make(map[string]string)
+	pc.groups = make(map[string]map[string]string)
+	pc.log = resources.Logger()
+	pc.mtx = &sync.RWMutex{}
 
 	node, _ := resources.Introspector().Inspect(&l8poll.L8Pollaris{})
 	introspecting.AddPrimaryKeyDecorator(node, "Name")
@@ -34,12 +37,10 @@ func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListe
 	} else {
 		resources.Logger().Info("Initializing pollarisCenter with no init elements")
 	}
+	
 	pc.name2Poll = dcache.NewDistributedCacheNoSync(ServiceName, ServiceArea, &l8poll.L8Pollaris{}, initElements,
 		listener, resources)
 
-	pc.groups = make(map[string]map[string]string)
-	pc.log = resources.Logger()
-	pc.mtx = &sync.RWMutex{}
 	return pc
 }
 
