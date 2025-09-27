@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layer 8 Data Mining Models - L8 Pollaris</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Parallax Container */
+        .parallax-container {
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            perspective: 1px;
+        }
+
+        .parallax-element {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .parallax-back {
+            transform: translateZ(-1px) scale(2);
+        }
+
+        .parallax-base {
+            transform: translateZ(0);
+        }
+
+        /* Hero Section - Full Page Header */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #0f4c75 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%231e3c72;stop-opacity:0.1"/><stop offset="100%" style="stop-color:%230f4c75;stop-opacity:0.3"/></linearGradient></defs><circle cx="100" cy="100" r="50" fill="url(%23grad1)"/><circle cx="300" cy="200" r="30" fill="url(%23grad1)"/><circle cx="700" cy="150" r="40" fill="url(%23grad1)"/><circle cx="900" cy="300" r="35" fill="url(%23grad1)"/><circle cx="200" cy="400" r="25" fill="url(%23grad1)"/><circle cx="500" cy="500" r="45" fill="url(%23grad1)"/><circle cx="800" cy="600" r="30" fill="url(%23grad1)"/><circle cx="150" cy="700" r="35" fill="url(%23grad1)"/><circle cx="600" cy="800" r="40" fill="url(%23grad1)"/><circle cx="400" cy="900" r="30" fill="url(%23grad1)"/></svg>') center/cover;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            z-index: 1;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: slideInUp 1s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: slideInUp 1s ease-out 0.2s both;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            animation: slideInUp 1s ease-out 0.4s both;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3c72;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #ff6b35;
+        }
+
+        /* Content Sections */
+        .section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #1e3c72;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            border-radius: 2px;
+        }
+
+        /* Features Section */
+        .features {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #1e3c72;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Architecture Section */
+        .architecture {
+            background: white;
+        }
+
+        .arch-diagram {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 3rem 0;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .arch-diagram::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400"><defs><linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23667eea;stop-opacity:0.1"/><stop offset="100%" style="stop-color:%23764ba2;stop-opacity:0.3"/></linearGradient></defs><rect x="50" y="50" width="150" height="80" rx="10" fill="url(%23grad2)" stroke="%23ffffff" stroke-width="2"/><rect x="250" y="50" width="150" height="80" rx="10" fill="url(%23grad2)" stroke="%23ffffff" stroke-width="2"/><rect x="450" y="50" width="150" height="80" rx="10" fill="url(%23grad2)" stroke="%23ffffff" stroke-width="2"/><rect x="650" y="50" width="150" height="80" rx="10" fill="url(%23grad2)" stroke="%23ffffff" stroke-width="2"/><rect x="150" y="200" width="150" height="80" rx="10" fill="url(%23grad2)" stroke="%23ffffff" stroke-width="2"/><rect x="350" y="200" width="150" height="80" rx="10" fill="url(%23grad2)" stroke="%23ffffff" stroke-width="2"/><rect x="550" y="200" width="150" height="80" rx="10" fill="url(%23grad2)" stroke="%23ffffff" stroke-width="2"/><line x1="125" y1="130" x2="225" y2="200" stroke="%23ffffff" stroke-width="2"/><line x1="325" y1="130" x2="425" y2="200" stroke="%23ffffff" stroke-width="2"/><line x1="525" y1="130" x2="625" y2="200" stroke="%23ffffff" stroke-width="2"/></svg>') center/contain no-repeat;
+            opacity: 0.3;
+        }
+
+        .arch-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Updates Section */
+        .updates {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        .update-timeline {
+            margin-top: 3rem;
+        }
+
+        .timeline-item {
+            background: white;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #ff6b35;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .timeline-date {
+            color: #ff6b35;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-size: 1.3rem;
+            color: #1e3c72;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1e3c72;
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #ff6b35;
+        }
+
+        .footer-section a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #ff6b35;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom Illustrations as CSS */
+        .custom-illustration {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .custom-illustration::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: 60%;
+            height: 60%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .custom-illustration::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 30%;
+            height: 30%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">L8 Pollaris</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#updates">Updates</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section - Full Page Header -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Layer 8 Data Mining Models</h1>
+            <p>Advanced Polling, Parsing & Populating Service for Enterprise Data Mining</p>
+            <a href="#features" class="cta-button">Explore Features</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section features" id="features">
+        <div class="container">
+            <h2 class="section-title fade-in">Core Features</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🚀</div>
+                    <h3>High-Performance Polling</h3>
+                    <p>Enterprise-grade polling capabilities with distributed caching and advanced synchronization controls for optimal performance.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🔌</div>
+                    <h3>Multi-Protocol Support</h3>
+                    <p>Unified interface supporting SNMP v2/v3, SSH, RESTCONF, NETCONF, gRPC, and Kubernetes protocols.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📊</div>
+                    <h3>Data Mining Operations</h3>
+                    <p>Flexible operations including GET, MAP, and TABLE operations for comprehensive data extraction.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🏗️</div>
+                    <h3>Advanced Architecture</h3>
+                    <p>Modular design with PollarisCenter, enhanced logging, and intelligent initialization handling.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Enterprise Security</h3>
+                    <p>Built-in security features with protocol buffer definitions and secure communication channels.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-time Processing</h3>
+                    <p>Dynamic group management and real-time data processing for immediate insights and actions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="section architecture" id="architecture">
+        <div class="container">
+            <h2 class="section-title fade-in">System Architecture</h2>
+            <div class="arch-diagram fade-in">
+                <div class="arch-content">
+                    <h3>Distributed Polling Architecture</h3>
+                    <p>L8 Pollaris implements a sophisticated multi-layer architecture designed for scalability, reliability, and performance in enterprise environments.</p>
+                </div>
+            </div>
+            <div class="custom-illustration fade-in"></div>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <h3>PollarisService Layer</h3>
+                    <p>Advanced service implementation handling comprehensive CRUD operations with enterprise-grade reliability and error handling.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <h3>PollarisCenter Hub</h3>
+                    <p>Enhanced central management with improved logging, initialization tracking, and distributed caching capabilities.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <h3>Protocol Buffer Layer</h3>
+                    <p>Type-safe message definitions with optimized serialization for all entities and communication protocols.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Updates Section -->
+    <section class="section updates" id="updates">
+        <div class="container">
+            <h2 class="section-title fade-in">Latest Updates</h2>
+            <div class="update-timeline">
+                <div class="timeline-item fade-in">
+                    <div class="timeline-date">September 2025</div>
+                    <div class="timeline-title">Enhanced Initialization Logging</div>
+                    <div class="timeline-description">Added comprehensive logging during PollarisCenter initialization to track init elements and service startup processes.</div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-date">September 2025</div>
+                    <div class="timeline-title">Improved Cache Management</div>
+                    <div class="timeline-description">Implemented NewDistributedCacheNoSync for better performance and enhanced control over synchronization mechanisms.</div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-date">September 2025</div>
+                    <div class="timeline-title">Advanced Initialization Handling</div>
+                    <div class="timeline-description">Added dedicated addInit() method for proper handling of initialization elements without triggering distributed cache events.</div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-date">September 2025</div>
+                    <div class="timeline-title">Enhanced Service Reliability</div>
+                    <div class="timeline-description">Improved error handling, validation, and debugging capabilities throughout the service initialization process.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Layer 8 Data Mining Models</h3>
+                    <p>Advanced enterprise-grade polling and data mining solutions for modern infrastructure.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Technologies</h3>
+                    <p>Go 1.23.8</p>
+                    <p>Protocol Buffers</p>
+                    <p>Distributed Caching</p>
+                    <p>Multi-Protocol Support</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Links</h3>
+                    <p><a href="#">Documentation</a></p>
+                    <p><a href="#">GitHub Repository</a></p>
+                    <p><a href="#">API Reference</a></p>
+                    <p><a href="#">Contributing Guide</a></p>
+                </div>
+            </div>
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #333;">
+                <p>&copy; 2025 Layer 8 Data Mining Models. Licensed under Apache 2.0.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Parallax scrolling effect
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll('.parallax-back');
+
+            parallaxElements.forEach(element => {
+                const speed = 0.5;
+                element.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+
+            // Navbar scroll effect
+            const navbar = document.getElementById('navbar');
+            if (scrolled > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add some interactive elements
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

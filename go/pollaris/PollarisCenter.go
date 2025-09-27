@@ -37,7 +37,7 @@ func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListe
 	} else {
 		resources.Logger().Info("Initializing pollarisCenter with no init elements")
 	}
-	
+
 	pc.name2Poll = dcache.NewDistributedCacheNoSync(ServiceName, ServiceArea, &l8poll.L8Pollaris{}, initElements,
 		listener, resources)
 

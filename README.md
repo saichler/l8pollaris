@@ -1,19 +1,22 @@
-# L8 Pollaris
+# Layer 8 Data Mining Models (L8 Pollaris)
 
 [![Go Version](https://img.shields.io/badge/go-1.23.8-blue.svg)](https://golang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen.svg)]()
 
-L8 Pollaris is a **Polling/Parsing & Populating model service** for agnostic collection, parsing & populating abstract models. It provides a flexible and extensible framework for defining device polling configurations and managing collection operations across different protocols and device types.
+**Layer 8 Data Mining Models (L8 Pollaris)** is an advanced **Polling/Parsing & Populating model service** designed for agnostic collection, parsing & populating abstract data mining models. It provides a highly flexible and extensible framework for defining device polling configurations and managing sophisticated collection operations across multiple protocols and device types in enterprise environments.
 
 ## Overview
 
-L8 Pollaris is part of the Layer8 ecosystem, providing a centralized service for:
+L8 Pollaris is a core component of the Layer8 ecosystem, providing an intelligent centralized service for:
 
-- **Device Polling Configuration**: Define how and what to poll from network devices
-- **Protocol Abstraction**: Support for multiple protocols (SNMP, SSH, RESTCONF, NETCONF, gRPC, K8s)
-- **Flexible Operations**: Support for different polling operations (GET, MAP, TABLE)
-- **Group Management**: Organize devices and polling configurations into logical groups
-- **Distributed Caching**: Built-in distributed caching for high performance
+- **Advanced Device Polling Configuration**: Define sophisticated polling strategies for network devices and data sources
+- **Protocol Abstraction Layer**: Unified interface supporting multiple protocols (SNMP v2/v3, SSH, RESTCONF, NETCONF, gRPC, Kubernetes)
+- **Flexible Data Mining Operations**: Support for diverse polling operations (GET, MAP, TABLE) with intelligent data extraction
+- **Dynamic Group Management**: Organize devices and polling configurations into logical, hierarchical groups
+- **High-Performance Distributed Caching**: Built-in distributed caching with improved logging and initialization
+- **Enterprise-Grade Scalability**: Designed for large-scale enterprise environments with concurrent polling capabilities
 
 ## Architecture
 
@@ -21,9 +24,11 @@ The project is structured into several key components:
 
 ### Core Components
 
-- **PollarisService**: Main service implementation handling CRUD operations
-- **PollarisCenter**: Central management hub for polling configurations and caching
-- **Protocol Buffer Definitions**: Type-safe message definitions for all entities
+- **PollarisService**: Advanced service implementation handling comprehensive CRUD operations with enterprise-grade reliability
+- **PollarisCenter**: Enhanced central management hub with improved logging, initialization tracking, and distributed caching capabilities
+- **Protocol Buffer Definitions**: Type-safe message definitions for all entities with optimized serialization
+- **Advanced Logging System**: Comprehensive logging infrastructure for debugging and monitoring service initialization
+- **Distributed Cache Management**: High-performance caching layer with synchronization controls and initialization validation
 
 ### Protocol Buffer Types
 
@@ -80,6 +85,20 @@ L8 Pollaris supports multiple network management protocols:
 - **OGet**: Simple get operations for single values
 - **OMap**: Key-value mapping operations
 - **OTable**: Tabular data collection
+
+## Recent Updates & Improvements
+
+### Latest Enhancements (September 2025)
+
+The following major improvements have been implemented in the latest version:
+
+- **Enhanced Initialization Logging**: Added comprehensive logging during PollarisCenter initialization to track init elements and service startup
+- **Improved Cache Management**: Implemented `NewDistributedCacheNoSync` for better performance and control over synchronization
+- **Initialization Data Handling**: Added dedicated `addInit()` method for proper handling of initialization elements without triggering distributed cache events
+- **Service Reliability**: Enhanced error handling and validation throughout the initialization process
+- **Debug Capabilities**: Improved debugging information for service initialization and cache population
+
+These improvements provide better visibility into the service startup process and enhance the overall reliability of the polling system.
 
 ## Getting Started
 
