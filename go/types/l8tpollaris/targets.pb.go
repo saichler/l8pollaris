@@ -7,7 +7,7 @@
 package l8tpollaris
 
 import (
-	l8services "./types/l8services"
+	l8services "github.com/saichler/l8types/go/types/l8services"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

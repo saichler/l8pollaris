@@ -13,3 +13,6 @@ rm -rf ../go/types
 mkdir -p ../go/types
 mv ./types/* ../go/types/.
 rm -rf ./types
+
+cd ../go
+ find . -name "*.go" -type f -exec sed -i 's|"./types/l8services"|"github.com/saichler/l8types/go/types/l8services"|g' {} +
