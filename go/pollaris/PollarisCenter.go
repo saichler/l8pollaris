@@ -3,7 +3,7 @@ package pollaris
 import (
 	"errors"
 
-	"github.com/saichler/l8pollaris/go/types/l8poll"
+	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
 	"github.com/saichler/l8reflect/go/reflect/introspecting"
 	"github.com/saichler/l8services/go/services/dcache"
 	"github.com/saichler/l8types/go/ifs"
@@ -27,18 +27,18 @@ func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListe
 	pc.log = resources.Logger()
 	pc.mtx = &sync.RWMutex{}
 
-	node, _ := resources.Introspector().Inspect(&l8poll.L8Pollaris{})
+	node, _ := resources.Introspector().Inspect(&l8tpollaris.L8Pollaris{})
 	introspecting.AddPrimaryKeyDecorator(node, "Name")
 	if initElements != nil {
 		resources.Logger().Info("Initializing pollarisCenter with init elements ", len(initElements))
 		for _, element := range initElements {
-			pc.addInit(element.(*l8poll.L8Pollaris))
+			pc.addForInit(element.(*l8tpollaris.L8Pollaris))
 		}
 	} else {
 		resources.Logger().Info("Initializing pollarisCenter with no init elements")
 	}
 
-	pc.name2Poll = dcache.NewDistributedCacheNoSync(ServiceName, ServiceArea, &l8poll.L8Pollaris{}, initElements,
+	pc.name2Poll = dcache.NewDistributedCacheNoSync(ServiceName, ServiceArea, &l8tpollaris.L8Pollaris{}, initElements,
 		listener, resources)
 
 	return pc
@@ -77,12 +77,12 @@ func (this *PollarisCenter) deleteFromKey2Name(key string) {
 	delete(this.key2Name, key)
 }
 
-func (this *PollarisCenter) deleteExisting(pollrs *l8poll.L8Pollaris, key string) {
+func (this *PollarisCenter) deleteExisting(pollrs *l8tpollaris.L8Pollaris, key string) {
 	ePoll, _ := this.name2Poll.Get(pollrs)
 	if ePoll == nil {
 		return
 	}
-	existPoll, _ := ePoll.(*l8poll.L8Pollaris)
+	existPoll, _ := ePoll.(*l8tpollaris.L8Pollaris)
 	if existPoll.Groups != nil {
 		for _, gName := range existPoll.Groups {
 			gEntry := this.getGroup(gName)
@@ -94,13 +94,13 @@ func (this *PollarisCenter) deleteExisting(pollrs *l8poll.L8Pollaris, key string
 	this.deleteFromKey2Name(key)
 }
 
-func (this *PollarisCenter) AddAll(pollarises []*l8poll.L8Pollaris) {
+func (this *PollarisCenter) AddAll(pollarises []*l8tpollaris.L8Pollaris) {
 	for _, l8pollaris := range pollarises {
-		this.Add(l8pollaris, false)
+		this.Post(l8pollaris, false)
 	}
 }
 
-func (this *PollarisCenter) Add(l8pollaris *l8poll.L8Pollaris, isNotification bool) error {
+func (this *PollarisCenter) Post(l8pollaris *l8tpollaris.L8Pollaris, isNotification bool) error {
 	if l8pollaris.Name == "" {
 		return errors.New("Pollaris does not contain a Name")
 	}
@@ -120,7 +120,7 @@ func (this *PollarisCenter) Add(l8pollaris *l8poll.L8Pollaris, isNotification bo
 		this.deleteExisting(l8pollaris, key)
 	}
 
-	this.name2Poll.Put(l8pollaris, isNotification)
+	this.name2Poll.Post(l8pollaris, isNotification)
 
 	this.mtx.Lock()
 	defer this.mtx.Unlock()
@@ -139,7 +139,7 @@ func (this *PollarisCenter) Add(l8pollaris *l8poll.L8Pollaris, isNotification bo
 	return nil
 }
 
-func (this *PollarisCenter) addInit(p *l8poll.L8Pollaris) {
+func (this *PollarisCenter) addForInit(p *l8tpollaris.L8Pollaris) {
 	key := this.PollarisKey(p)
 	this.key2Name[key] = p.Name
 	if p.Groups != nil {
@@ -154,7 +154,7 @@ func (this *PollarisCenter) addInit(p *l8poll.L8Pollaris) {
 	}
 }
 
-func (this *PollarisCenter) Update(l8pollaris *l8poll.L8Pollaris, isNotification bool) error {
+func (this *PollarisCenter) Put(l8pollaris *l8tpollaris.L8Pollaris, isNotification bool) error {
 	if l8pollaris.Name == "" {
 		return errors.New("Pollaris does not contain a Name")
 	}
@@ -194,29 +194,29 @@ func (this *PollarisCenter) Update(l8pollaris *l8poll.L8Pollaris, isNotification
 	return nil
 }
 
-func (this *PollarisCenter) PollarisKey(l8pollaris *l8poll.L8Pollaris) string {
+func (this *PollarisCenter) PollarisKey(l8pollaris *l8tpollaris.L8Pollaris) string {
 	return pollarisKey(l8pollaris.Name, l8pollaris.Vendor, l8pollaris.Series, l8pollaris.Family, l8pollaris.Software, l8pollaris.Hardware, l8pollaris.Version)
 }
 
-func (this *PollarisCenter) PollarisByName(name string) *l8poll.L8Pollaris {
+func (this *PollarisCenter) PollarisByName(name string) *l8tpollaris.L8Pollaris {
 	if this == nil || this.name2Poll == nil {
 		return nil
 	}
-	filter := &l8poll.L8Pollaris{Name: name}
+	filter := &l8tpollaris.L8Pollaris{Name: name}
 	p, _ := this.name2Poll.Get(filter)
-	poll, _ := p.(*l8poll.L8Pollaris)
+	poll, _ := p.(*l8tpollaris.L8Pollaris)
 	return poll
 }
 
-func (this *PollarisCenter) PollarisByKey(args ...string) *l8poll.L8Pollaris {
+func (this *PollarisCenter) PollarisByKey(args ...string) *l8tpollaris.L8Pollaris {
 	if args == nil || len(args) == 0 {
 		return nil
 	}
 	if len(args) == 1 {
 		pollName := this.key2Name[args[0]]
-		filter := &l8poll.L8Pollaris{Name: pollName}
+		filter := &l8tpollaris.L8Pollaris{Name: pollName}
 		p, _ := this.name2Poll.Get(filter)
-		poll, _ := p.(*l8poll.L8Pollaris)
+		poll, _ := p.(*l8tpollaris.L8Pollaris)
 		return poll
 	}
 	buff := strings.New()
@@ -226,15 +226,15 @@ func (this *PollarisCenter) PollarisByKey(args ...string) *l8poll.L8Pollaris {
 	}
 	p, ok := this.getPollName(buff.String())
 	if ok {
-		filter := &l8poll.L8Pollaris{Name: p}
+		filter := &l8tpollaris.L8Pollaris{Name: p}
 		f, _ := this.name2Poll.Get(filter)
-		poll, _ := f.(*l8poll.L8Pollaris)
+		poll, _ := f.(*l8tpollaris.L8Pollaris)
 		return poll
 	}
 	return this.PollarisByKey(args[0 : len(args)-1]...)
 }
 
-func (this *PollarisCenter) Poll(pollarisName, jobName string) *l8poll.L8Poll {
+func (this *PollarisCenter) Poll(pollarisName, jobName string) *l8tpollaris.L8Poll {
 	l8pollaris := this.PollarisByName(pollarisName)
 	if l8pollaris == nil {
 		return nil
@@ -260,9 +260,9 @@ func (this *PollarisCenter) Names(groupName, vendor, series, family, software, h
 	return result
 }
 
-func (this *PollarisCenter) PollsByGroup(groupName, vendor, series, family, software, hardware, version string) []*l8poll.L8Pollaris {
+func (this *PollarisCenter) PollsByGroup(groupName, vendor, series, family, software, hardware, version string) []*l8tpollaris.L8Pollaris {
 	names := this.Names(groupName, vendor, series, family, software, hardware, version)
-	result := make([]*l8poll.L8Pollaris, 0)
+	result := make([]*l8tpollaris.L8Pollaris, 0)
 	for _, name := range names {
 		poll := this.PollarisByKey(name, vendor, series, family, software, hardware, version)
 		if poll != nil {
@@ -280,7 +280,7 @@ func Pollaris(resource ifs.IResources) *PollarisCenter {
 	return (sp.(*PollarisService)).pollarisCenter
 }
 
-func Poll(pollarisName, pollName string, resources ifs.IResources) (*l8poll.L8Poll, error) {
+func Poll(pollarisName, pollName string, resources ifs.IResources) (*l8tpollaris.L8Poll, error) {
 	pollarisCenter := Pollaris(resources)
 	if pollarisCenter == nil {
 		return nil, resources.Logger().Error("Cannot find Pollaris service")
@@ -296,7 +296,7 @@ func Poll(pollarisName, pollName string, resources ifs.IResources) (*l8poll.L8Po
 	return poll, nil
 }
 
-func PollarisByKey(resources ifs.IResources, args ...string) (*l8poll.L8Pollaris, error) {
+func PollarisByKey(resources ifs.IResources, args ...string) (*l8tpollaris.L8Pollaris, error) {
 	pollarisCenter := Pollaris(resources)
 	if pollarisCenter == nil {
 		return nil, resources.Logger().Error("Cannot find Pollaris service")
@@ -308,7 +308,7 @@ func PollarisByKey(resources ifs.IResources, args ...string) (*l8poll.L8Pollaris
 	return p, nil
 }
 
-func PollarisByGroup(resources ifs.IResources, groupName, vendor, series, family, software, hardware, version string) ([]*l8poll.L8Pollaris, error) {
+func PollarisByGroup(resources ifs.IResources, groupName, vendor, series, family, software, hardware, version string) ([]*l8tpollaris.L8Pollaris, error) {
 	pollarisCenter := Pollaris(resources)
 	if pollarisCenter == nil {
 		return nil, resources.Logger().Error("Cannot find Pollaris service")

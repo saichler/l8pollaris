@@ -20,7 +20,7 @@ func TestPollaris(t *testing.T) {
 	vnic.Resources().Services().Activate(pollaris.ServiceType, pollaris.ServiceName, 0, vnic.Resources(), vnic)
 	p := pollaris.Pollaris(vnic.Resources())
 	pollrs := boot.CreateBoot01()
-	err := p.Add(pollrs, false)
+	err := p.Post(pollrs, false)
 	if err != nil {
 		vnic.Resources().Logger().Fail(t, err.Error())
 		return

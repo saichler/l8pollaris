@@ -1,35 +1,36 @@
 syntax = "proto3";
 
-package l8poll;
+package l8tpollaris;
 
 option java_multiple_files = true;
-option java_outer_classname = "L8Types";
-option java_package = "com.l8targets.types";
-option go_package = "./types/l8poll";
+option java_outer_classname = "L8TPollaris";
+option java_package = "com.l8tpollaris.types";
+option go_package = "./types/l8tpollaris";
 
 import "pollaris.proto";
 import "services.proto";
 
-message L8C_TargetList {
-  repeated L8C_Target list = 1;
+message L8PTargetList {
+  repeated L8PTarget list = 1;
 }
 
-message L8C_Target {
+message L8PTarget {
   string target_id = 1;
-  l8services.L8ServiceLink link_p = 2;
-  l8services.L8ServiceLink link_d = 3;
-  map<string, L8C_Host> hosts = 4;
+  l8services.L8ServiceLink link_collector = 2;
+  l8services.L8ServiceLink link_parser = 3;
+  l8services.L8ServiceLink link_data = 4;
+  map<string, L8PHost> hosts = 5;
 }
 
-message L8C_Host {
+message L8PHost {
   string target_id = 1;
-  map<int32, L8T_Connection> configs = 3;
+  map<int32, L8PHostProtocol> configs = 3;
   map<string, string> polls = 4;
   map<string, string> groups = 5;
 }
 
-message L8T_Connection {
-  L8C_Protocol protocol = 1;
+message L8PHostProtocol {
+  L8PProtocol protocol = 1;
   string addr = 2;
   int32 port = 3;
   string read_community = 4;
@@ -42,6 +43,9 @@ message L8T_Connection {
   int64 timeout = 11;
   string KubeConfig = 12;
   string KukeContext = 13;
+  string cert = 14;
+  string http_prefix = 15;
+  repeated string auth_paths = 16;
 }
 
 message CMap {
