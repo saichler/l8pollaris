@@ -7,7 +7,6 @@ option java_outer_classname = "L8TPollaris";
 option java_package = "com.l8tpollaris.types";
 option go_package = "./types/l8tpollaris";
 
-import "targets.proto";
 import "pollaris.proto";
 import "services.proto";
 
