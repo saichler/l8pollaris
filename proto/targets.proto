@@ -56,6 +56,9 @@ message AuthInfo {
   string authResp = 5;
   string authToken = 6;
   string auth_path = 7;
+  bool isApiKey = 8;
+  string api_user = 9;
+  string api_key = 10;
 }
 
 message CMap {
