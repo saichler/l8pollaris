@@ -48,7 +48,7 @@ enum L8PProtocol {
   L8PNETCONF = 5;
   L8PGRPC = 6;
   L8PKubectl = 7;
-  L8GraphQL = 8;
+  L8PGraphQL = 8;
 }
 
 message L8PAttribute {
