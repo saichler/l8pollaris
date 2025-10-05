@@ -51,8 +51,11 @@ message L8PHostProtocol {
 message AuthInfo {
   bool need_auth = 1;
   string authBody = 2;
-  string authResp = 3;
-  string auth_path = 4;
+  string authUserField = 3;
+  string authPassField = 4;
+  string authResp = 5;
+  string authToken = 6;
+  string auth_path = 7;
 }
 
 message CMap {
