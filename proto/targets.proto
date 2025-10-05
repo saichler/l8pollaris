@@ -45,7 +45,14 @@ message L8PHostProtocol {
   string KukeContext = 13;
   string cert = 14;
   string http_prefix = 15;
-  repeated string auth_paths = 16;
+  AuthInfo ainfo = 16;
+}
+
+message AuthInfo {
+  bool need_auth = 1;
+  string authBody = 2;
+  string authResp = 3;
+  string auth_path = 4;
 }
 
 message CMap {
