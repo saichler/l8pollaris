@@ -20,26 +20,26 @@ type PollarisCenter struct {
 	mtx       *sync.RWMutex
 }
 
-func newPollarisCenter(resources ifs.IResources, listener ifs.IServiceCacheListener, initElements []interface{}) *PollarisCenter {
+func newPollarisCenter(sla *ifs.ServiceLevelAgreement, vnic ifs.IVNic) *PollarisCenter {
 	pc := &PollarisCenter{}
 	pc.key2Name = make(map[string]string)
 	pc.groups = make(map[string]map[string]string)
-	pc.log = resources.Logger()
+	pc.log = vnic.Resources().Logger()
 	pc.mtx = &sync.RWMutex{}
 
-	node, _ := resources.Introspector().Inspect(&l8tpollaris.L8Pollaris{})
+	node, _ := vnic.Resources().Introspector().Inspect(&l8tpollaris.L8Pollaris{})
 	introspecting.AddPrimaryKeyDecorator(node, "Name")
-	if initElements != nil {
-		resources.Logger().Info("Initializing pollarisCenter with init elements ", len(initElements))
-		for _, element := range initElements {
+	if sla.InitItems() != nil {
+		vnic.Resources().Logger().Info("Initializing pollarisCenter with init elements ", len(sla.InitItems()))
+		for _, element := range sla.InitItems() {
 			pc.addForInit(element.(*l8tpollaris.L8Pollaris))
 		}
 	} else {
-		resources.Logger().Info("Initializing pollarisCenter with no init elements")
+		vnic.Resources().Logger().Info("Initializing pollarisCenter with no init elements")
 	}
 
-	pc.name2Poll = dcache.NewDistributedCacheNoSync(ServiceName, ServiceArea, &l8tpollaris.L8Pollaris{}, initElements,
-		listener, resources)
+	pc.name2Poll = dcache.NewDistributedCacheNoSync(ServiceName, ServiceArea, &l8tpollaris.L8Pollaris{}, sla.InitItems(),
+		vnic, vnic.Resources())
 
 	return pc
 }

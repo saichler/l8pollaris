@@ -6,6 +6,7 @@ import (
 	"github.com/saichler/l8collector/go/collector/common"
 	"github.com/saichler/l8parser/go/parser/boot"
 	"github.com/saichler/l8pollaris/go/pollaris"
+	"github.com/saichler/l8types/go/ifs"
 )
 
 func TestMain(m *testing.M) {
@@ -17,7 +18,8 @@ func TestMain(m *testing.M) {
 func TestPollaris(t *testing.T) {
 	vnic := topo.VnicByVnetNum(2, 2)
 	vnic.Resources().Registry().Register(pollaris.PollarisService{})
-	vnic.Resources().Services().Activate(pollaris.ServiceType, pollaris.ServiceName, 0, vnic.Resources(), vnic)
+	sla := ifs.NewServiceLevelAgreement(&pollaris.PollarisService{}, pollaris.ServiceName, 0, true, nil)
+	vnic.Resources().Services().Activate(sla, vnic)
 	p := pollaris.Pollaris(vnic.Resources())
 	pollrs := boot.CreateBoot01()
 	err := p.Post(pollrs, false)
