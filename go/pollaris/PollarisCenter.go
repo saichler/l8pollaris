@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
-	"github.com/saichler/l8reflect/go/reflect/introspecting"
+	"github.com/saichler/l8reflect/go/reflect/helping"
 	"github.com/saichler/l8services/go/services/dcache"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8utils/go/utils/strings"
@@ -28,7 +28,7 @@ func newPollarisCenter(sla *ifs.ServiceLevelAgreement, vnic ifs.IVNic) *Pollaris
 	pc.mtx = &sync.RWMutex{}
 
 	node, _ := vnic.Resources().Introspector().Inspect(&l8tpollaris.L8Pollaris{})
-	introspecting.AddPrimaryKeyDecorator(node, "Name")
+	helping.AddPrimaryKeyDecorator(node, "Name")
 	if sla.InitItems() != nil {
 		vnic.Resources().Logger().Info("Initializing pollarisCenter with init elements ", len(sla.InitItems()))
 		for _, element := range sla.InitItems() {
