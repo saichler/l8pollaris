@@ -16,10 +16,16 @@ message L8PTargetList {
 
 message L8PTarget {
   string target_id = 1;
-  l8services.L8ServiceLink link_collector = 2;
-  l8services.L8ServiceLink link_parser = 3;
-  l8services.L8ServiceLink link_data = 4;
-  map<string, L8PHost> hosts = 5;
+  string links_id = 2;
+  map<string, L8PHost> hosts = 3;
+}
+
+message L8TargetLinks {
+  string linksId = 1;
+  l8services.L8ServiceLink collector = 2;
+  l8services.L8ServiceLink parser = 3;
+  l8services.L8ServiceLink cache = 4;
+  l8services.L8ServiceLink persistency = 5;
 }
 
 message L8PHost {
@@ -33,19 +39,14 @@ message L8PHostProtocol {
   L8PProtocol protocol = 1;
   string addr = 2;
   int32 port = 3;
-  string read_community = 4;
-  string write_community = 5;
-  string username = 6;
-  string password = 7;
-  repeated string prompt = 8;
-  string terminal = 9;
-  repeated string terminal_commands = 10;
-  int64 timeout = 11;
-  string KubeConfig = 12;
-  string KukeContext = 13;
-  string cert = 14;
-  string http_prefix = 15;
-  AuthInfo ainfo = 16;
+  string cred_id = 4;
+  repeated string prompt = 5;
+  string terminal = 6;
+  repeated string terminal_commands = 7;
+  int64 timeout = 8;
+  string cert = 9;
+  string http_prefix = 10;
+  AuthInfo ainfo = 11;
 }
 
 message AuthInfo {

@@ -13,12 +13,18 @@ import (
 const (
 	ServiceName = "Pollaris"
 	ServiceArea = 0
-	ServiceType = "PollarisService"
 )
 
 type PollarisService struct {
 	pollarisCenter *PollarisCenter
 	serviceArea    byte
+}
+
+func Activate(vnic ifs.IVNic) error {
+	sla := ifs.NewServiceLevelAgreement(&PollarisService{}, ServiceName, ServiceArea, true, nil)
+	sla.SetServiceItem(&l8tpollaris.L8Pollaris{})
+	vnic.Resources().Services().Activate(sla, vnic)
+	return nil
 }
 
 func (this *PollarisService) Activate(sla *ifs.ServiceLevelAgreement, vnic ifs.IVNic) error {
