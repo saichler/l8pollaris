@@ -2,6 +2,7 @@ package targets
 
 import (
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
+	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8services"
 	"sync"
 )
@@ -23,13 +24,13 @@ func (this *TargetLinks) AddLink(linksId,
 	persistService string, persistArea byte) {
 	links := &l8tpollaris.L8TargetLinks{}
 	links.LinksId = linksId
-	links.Collector = &l8services.L8ServiceLink{ZsideServiceName: collectorService, ZsideServiceArea: int32(collectorArea)}
+	links.Collector = &l8services.L8ServiceLink{ZsideServiceName: collectorService, ZsideServiceArea: int32(collectorArea), Mode: int32(ifs.M_Proximity), Interval: 5}
 	links.Parser = &l8services.L8ServiceLink{ZsideServiceName: parserService, ZsideServiceArea: int32(parserArea),
-		AsideServiceName: collectorService, AsideServiceArea: int32(collectorArea)}
+		AsideServiceName: collectorService, AsideServiceArea: int32(collectorArea), Mode: int32(ifs.M_Proximity), Interval: 5}
 	links.Cache = &l8services.L8ServiceLink{ZsideServiceName: cacheService, ZsideServiceArea: int32(cacheArea),
-		AsideServiceName: parserService, AsideServiceArea: int32(parserArea)}
+		AsideServiceName: parserService, AsideServiceArea: int32(parserArea), Mode: int32(ifs.M_Proximity), Interval: 5}
 	links.Persistency = &l8services.L8ServiceLink{ZsideServiceName: persistService, ZsideServiceArea: int32(persistArea),
-		AsideServiceName: parserService, AsideServiceArea: int32(parserArea)}
+		AsideServiceName: parserService, AsideServiceArea: int32(parserArea), Mode: int32(ifs.M_Proximity), Interval: 5}
 	this.links.Store(linksId, links)
 }
 

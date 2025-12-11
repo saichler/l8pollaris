@@ -8,7 +8,6 @@ option java_package = "com.l8tpollaris.types";
 option go_package = "./types/l8tpollaris";
 
 import "pollaris.proto";
-import "services.proto";
 
 message CJob {
   string error = 1;
@@ -21,10 +20,9 @@ message CJob {
   string host_id = 8;
   string pollaris_name = 9;
   string job_name = 10;
-  l8services.L8ServiceLink link_parser = 11;
-  l8services.L8ServiceLink link_data = 12;
-  map<string, string> arguments = 13;
-  bytes lastResult = 14;
-  int32 error_count = 15;
-  bool always = 16;
+  string linksId = 11;
+  map<string, string> arguments = 12;
+  bytes lastResult = 13;
+  int32 error_count = 14;
+  bool always = 15;
 }
