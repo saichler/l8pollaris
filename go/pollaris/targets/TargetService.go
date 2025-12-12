@@ -17,7 +17,7 @@ const (
 var Links = newTargetLinks()
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	dbname, user, pass, _, err := vnic.Resources().Security().Credential(creds, dbname, vnic)
+	dbname, user, pass, _, err := vnic.Resources().Security().Credential(creds, dbname, vnic.Resources())
 	if err != nil {
 		panic(err)
 	}
