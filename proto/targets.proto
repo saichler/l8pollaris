@@ -8,7 +8,6 @@ option java_package = "com.l8tpollaris.types";
 option go_package = "./types/l8tpollaris";
 
 import "pollaris.proto";
-import "services.proto";
 
 message L8PTargetList {
   repeated L8PTarget list = 1;
@@ -18,14 +17,6 @@ message L8PTarget {
   string target_id = 1;
   string links_id = 2;
   map<string, L8PHost> hosts = 3;
-}
-
-message L8TargetLinks {
-  string linksId = 1;
-  l8services.L8ServiceLink collector = 2;
-  l8services.L8ServiceLink parser = 3;
-  l8services.L8ServiceLink cache = 4;
-  l8services.L8ServiceLink persistency = 5;
 }
 
 message L8PHost {

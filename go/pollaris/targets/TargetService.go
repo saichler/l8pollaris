@@ -14,7 +14,7 @@ const (
 	ServiceArea = byte(91)
 )
 
-var Links = newTargetLinks()
+var Links TargetLinks
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
 	dbname, user, pass, _, err := vnic.Resources().Security().Credential(creds, dbname, vnic.Resources())
