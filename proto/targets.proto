@@ -13,10 +13,16 @@ message L8PTargetList {
   repeated L8PTarget list = 1;
 }
 
+enum L8PTargetState {
+  Down = 0;
+  Up = 1;
+}
+
 message L8PTarget {
   string target_id = 1;
   string links_id = 2;
   map<string, L8PHost> hosts = 3;
+  L8PTargetState state = 4;
 }
 
 message L8PHost {

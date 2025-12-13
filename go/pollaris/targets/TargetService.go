@@ -2,10 +2,13 @@ package targets
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/saichler/l8orm/go/orm/persist"
+	"github.com/saichler/l8orm/go/orm/plugins/postgres"
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
+	"github.com/saichler/l8srlz/go/serialize/object"
 	"github.com/saichler/l8types/go/ifs"
 )
 
@@ -22,9 +25,9 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 		panic(err)
 	}
 	db := openDBConection(dbname, user, pass)
-	p := persist.NewPostgres(db, vnic.Resources())
+	p := postgres.NewPostgres(db, vnic.Resources())
 
-	sla := ifs.NewServiceLevelAgreement(&persist.OrmService{}, ServiceName, ServiceArea, true, nil)
+	sla := ifs.NewServiceLevelAgreement(&persist.OrmService{}, ServiceName, ServiceArea, true, &TargetCallback{})
 	sla.SetServiceItem(&l8tpollaris.L8PTarget{})
 	sla.SetServiceItemList(&l8tpollaris.L8PTargetList{})
 	sla.SetPrimaryKeys("TargetId")
@@ -33,8 +36,21 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 	vnic.Resources().Services().Activate(sla, vnic)
 }
 
-func Targets(r ifs.IResources) (ifs.IServiceHandler, bool) {
-	return r.Services().ServiceHandler(ServiceName, ServiceArea)
+func Targets(vnic ifs.IVNic) (ifs.IServiceHandler, bool) {
+	return vnic.Resources().Services().ServiceHandler(ServiceName, ServiceArea)
+}
+
+func Target(targetId string, vnic ifs.IVNic) (*l8tpollaris.L8PTarget, error) {
+	this, ok := Targets(vnic)
+	if !ok {
+		return nil, errors.New("No Targets Service Found")
+	}
+	filter := &l8tpollaris.L8PTarget{TargetId: targetId}
+	resp := this.Get(object.New(nil, filter), vnic)
+	if resp.Error() != nil {
+		return nil, resp.Error()
+	}
+	return resp.Element().(*l8tpollaris.L8PTarget), nil
 }
 
 func openDBConection(dbname, user, pass string) *sql.DB {
