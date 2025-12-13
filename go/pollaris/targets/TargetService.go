@@ -62,7 +62,6 @@ func openDBConection(dbname, user, pass string) *sql.DB {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("dbname=" + dbname + ";user=" + user + ";pass=" + pass)
 	err = db.Ping()
 	if err != nil {
 		panic(fmt.Errorf("failed to connect to database: %w", err))
