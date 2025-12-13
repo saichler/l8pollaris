@@ -10,6 +10,9 @@ import (
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
 	"github.com/saichler/l8srlz/go/serialize/object"
 	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types/l8api"
+	"github.com/saichler/l8types/go/types/l8web"
+	"github.com/saichler/l8utils/go/utils/web"
 )
 
 const (
@@ -32,7 +35,12 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 	sla.SetServiceItemList(&l8tpollaris.L8PTargetList{})
 	sla.SetPrimaryKeys("TargetId")
 	sla.SetArgs(p)
-
+	sla.SetWebService(web.New(ServiceName, ServiceArea,
+		&l8tpollaris.L8PTarget{}, &l8web.L8Empty{},
+		nil, nil,
+		&l8tpollaris.L8PTarget{}, &l8web.L8Empty{},
+		nil, nil,
+		&l8api.L8Query{}, &l8tpollaris.L8PTargetList{}))
 	vnic.Resources().Services().Activate(sla, vnic)
 }
 
