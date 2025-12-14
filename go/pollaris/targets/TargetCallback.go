@@ -33,6 +33,19 @@ func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notifica
 }
 
 func (this *TargetCallback) After(elem interface{}, action ifs.Action, notification bool, vnic ifs.IVNic) (interface{}, error) {
+	if action == ifs.POST && !notification {
+		target, ok := elem.(*l8tpollaris.L8PTarget)
+		if !ok {
+			return nil, errors.New("invalid target")
+		}
+		if target.State == l8tpollaris.L8PTargetState_Up {
+			collectorService, collectorArea := Links.Collector(target.LinksId)
+			err := vnic.RoundRobin(collectorService, collectorArea, ifs.POST, target)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
 	if action == ifs.PATCH && !notification {
 		target, ok := elem.(*l8tpollaris.L8PTarget)
 		if !ok {

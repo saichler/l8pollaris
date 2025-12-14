@@ -25,7 +25,7 @@ func TestTargetService(t *testing.T) {
 	}
 
 	device = &l8tpollaris.L8PTarget{TargetId: device.TargetId}
-	device.State = l8tpollaris.L8TargetState_Up
+	device.State = l8tpollaris.L8PTargetState_Up
 	resp = tr.Patch(object.New(nil, device), nic)
 	if resp.Error() != nil {
 		fmt.Println(resp.Error().Error())
