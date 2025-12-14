@@ -38,7 +38,7 @@ func (this *TargetCallback) After(elem interface{}, action ifs.Action, notificat
 		if !ok {
 			return nil, errors.New("invalid target")
 		}
-		if target.State == l8tpollaris.L8TargetState_Up {
+		if target.State == l8tpollaris.L8PTargetState_Up {
 			realTarget, err := Target(target.TargetId, vnic)
 			if err != nil {
 				return nil, err
