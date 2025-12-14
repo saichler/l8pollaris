@@ -12,7 +12,7 @@ func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notifica
 	if action == ifs.POST && !notification {
 		list, ok := elem.(*l8tpollaris.L8PTargetList)
 		if ok {
-			elems := make([]interface{}, len(list.List))
+			elems := make([]interface{}, 0)
 			for i, item := range list.List {
 				elems[i] = item
 			}
