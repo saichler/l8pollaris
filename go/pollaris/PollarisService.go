@@ -2,6 +2,7 @@ package pollaris
 
 import (
 	"errors"
+	"github.com/saichler/l8parser/go/parser/boot"
 
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
 	"github.com/saichler/l8srlz/go/serialize/object"
@@ -21,8 +22,14 @@ type PollarisService struct {
 }
 
 func Activate(vnic ifs.IVNic) error {
+	initData := []interface{}{}
+	for _, p := range boot.GetAllPolarisModels() {
+		initData = append(initData, p)
+	}
+	initData = append(initData, boot.CreateK8sBootPolls())
 	sla := ifs.NewServiceLevelAgreement(&PollarisService{}, ServiceName, ServiceArea, true, nil)
 	sla.SetServiceItem(&l8tpollaris.L8Pollaris{})
+	sla.SetInitItems(initData)
 	vnic.Resources().Services().Activate(sla, vnic)
 	return nil
 }
