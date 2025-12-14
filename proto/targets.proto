@@ -18,6 +18,18 @@ message L8PTargetList {
 enum L8PTargetState {
   Down = 0;
   Up = 1;
+  Maintenance = 2;
+  Offline = 3;
+}
+
+enum L8PTargetType {
+  Network_Device = 0;
+  GPUS = 1;
+  Hosts = 2;
+  Virtual_Machine = 3;
+  K8s_Cluster = 4;
+  Storage = 5;
+  Power = 6;
 }
 
 message L8PTarget {
@@ -25,6 +37,7 @@ message L8PTarget {
   string links_id = 2;
   map<string, L8PHost> hosts = 3;
   L8PTargetState state = 4;
+  L8PTargetType inventory_type = 5;
 }
 
 message L8PHost {
