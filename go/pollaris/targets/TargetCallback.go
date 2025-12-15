@@ -40,6 +40,7 @@ func (this *TargetCallback) After(elem interface{}, action ifs.Action, notificat
 		}
 		if target.State == l8tpollaris.L8PTargetState_Up {
 			collectorService, collectorArea := Links.Collector(target.LinksId)
+			vnic.Resources().Logger().Info("Sending target to collector:", collectorService, " area ", collectorArea)
 			err := vnic.RoundRobin(collectorService, collectorArea, ifs.POST, target)
 			if err != nil {
 				return nil, err
@@ -57,6 +58,7 @@ func (this *TargetCallback) After(elem interface{}, action ifs.Action, notificat
 				return nil, err
 			}
 			collectorService, collectorArea := Links.Collector(realTarget.LinksId)
+			vnic.Resources().Logger().Info("Sending target to collector:", collectorService, " area ", collectorArea)
 			err = vnic.RoundRobin(collectorService, collectorArea, ifs.POST, realTarget)
 			if err != nil {
 				return nil, err
