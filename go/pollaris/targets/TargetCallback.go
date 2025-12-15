@@ -58,7 +58,8 @@ func (this *TargetCallback) After(elem interface{}, action ifs.Action, notificat
 				return nil, err
 			}
 			collectorService, collectorArea := Links.Collector(realTarget.LinksId)
-			vnic.Resources().Logger().Info("Sending target to collector:", collectorService, " area ", collectorArea)
+			vnic.Resources().Logger().Info("Sending target to collector:", collectorService, " area ", collectorArea,
+				" with hosts ", realTarget.Hosts)
 			err = vnic.RoundRobin(collectorService, collectorArea, ifs.POST, realTarget)
 			if err != nil {
 				return nil, err
