@@ -39,7 +39,7 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 		&l8tpollaris.L8PTarget{}, &l8web.L8Empty{},
 		nil, nil,
 		&l8tpollaris.L8PTarget{}, &l8web.L8Empty{},
-		nil, nil,
+		&l8api.L8Query{}, &l8web.L8Empty{},
 		&l8api.L8Query{}, &l8tpollaris.L8PTargetList{}))
 	vnic.Resources().Services().Activate(sla, vnic)
 }
