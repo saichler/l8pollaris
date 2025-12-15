@@ -41,7 +41,7 @@ message L8PTarget {
 }
 
 message L8PHost {
-  string target_id = 1;
+  string host_id = 1;
   map<int32, L8PHostProtocol> configs = 3;
   map<string, string> polls = 4;
   map<string, string> groups = 5;
