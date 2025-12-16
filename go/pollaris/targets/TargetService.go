@@ -30,7 +30,7 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 	db := openDBConection(dbname, user, pass)
 	p := postgres.NewPostgres(db, vnic.Resources())
 
-	sla := ifs.NewServiceLevelAgreement(&persist.OrmService{}, ServiceName, ServiceArea, true, &TargetCallback{})
+	sla := ifs.NewServiceLevelAgreement(&persist.OrmService{}, ServiceName, ServiceArea, true, newTargetCallback())
 	sla.SetServiceItem(&l8tpollaris.L8PTarget{})
 	sla.SetServiceItemList(&l8tpollaris.L8PTargetList{})
 	sla.SetPrimaryKeys("TargetId")
