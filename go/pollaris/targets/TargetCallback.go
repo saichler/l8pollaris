@@ -75,15 +75,25 @@ func (this *TargetCallback) After(elem interface{}, action ifs.Action, notificat
 		if !ok {
 			return nil, errors.New("invalid target")
 		}
-		if target.State == l8tpollaris.L8PTargetState_Up {
-			realTarget, err := Target(target.TargetId, vnic)
+
+		currTarget, err := Target(target.TargetId, vnic)
+		if err != nil {
+			return nil, err
+		}
+		collectorService, collectorArea := Links.Collector(currTarget.LinksId)
+
+		switch target.State {
+		case l8tpollaris.L8PTargetState_Down:
+			vnic.Resources().Logger().Info("Sending stop target to collector:", collectorService, " area ", collectorArea,
+				" with hosts ", currTarget.Hosts)
+			err = vnic.Multicast(collectorService, collectorArea, ifs.POST, currTarget)
 			if err != nil {
 				return nil, err
 			}
-			collectorService, collectorArea := Links.Collector(realTarget.LinksId)
-			vnic.Resources().Logger().Info("Sending target to collector:", collectorService, " area ", collectorArea,
-				" with hosts ", realTarget.Hosts)
-			err = vnic.RoundRobin(collectorService, collectorArea, ifs.POST, realTarget)
+		case l8tpollaris.L8PTargetState_Up:
+			vnic.Resources().Logger().Info("Sending start target to collector:", collectorService, " area ", collectorArea,
+				" with hosts ", currTarget.Hosts)
+			err = vnic.RoundRobin(collectorService, collectorArea, ifs.POST, currTarget)
 			if err != nil {
 				return nil, err
 			}
