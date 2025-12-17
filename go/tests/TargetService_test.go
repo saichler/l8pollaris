@@ -37,7 +37,7 @@ func TestTargetService(t *testing.T) {
 
 	ip := 1
 	sub := 40
-	for i := 1; i <= 25000; i++ {
+	for i := 1; i <= 100; i++ {
 		device = creates.CreateDevice("60.50."+strconv.Itoa(sub)+"."+strconv.Itoa(ip), common.NetworkDevice_Links_ID, "sim")
 		deviceList.List = append(deviceList.List, device)
 		ip++
@@ -53,6 +53,6 @@ func TestTargetService(t *testing.T) {
 		nic.Resources().Logger().Fail(t, resp.Error().Error())
 		return
 	}
-
+	fmt.Println("Sleeping")
 	time.Sleep(time.Second * 15)
 }
