@@ -21,6 +21,11 @@ func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notifica
 	switch action {
 	case ifs.POST:
 		if !notification {
+			targetAction, ok := elem.(*l8tpollaris.TargetAction)
+			if ok {
+				this.startStopAll(targetAction.State, targetAction.Type, vnic)
+				return nil, errors.New("Target Action Completed")
+			}
 			list, ok := elem.(*l8tpollaris.L8PTargetList)
 			if ok {
 				elems := make([]interface{}, 0)
