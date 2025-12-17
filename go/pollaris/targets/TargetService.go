@@ -43,7 +43,7 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 	ws.AddEndpoint(&l8tpollaris.L8PTarget{}, ifs.PUT, &l8web.L8Empty{})
 	ws.AddEndpoint(&l8tpollaris.L8PTarget{}, ifs.PATCH, &l8web.L8Empty{})
 	ws.AddEndpoint(&l8api.L8Query{}, ifs.DELETE, &l8web.L8Empty{})
-	ws.AddEndpoint(&l8api.L8Query{}, ifs.POST, &l8tpollaris.L8PTargetList{})
+	ws.AddEndpoint(&l8api.L8Query{}, ifs.GET, &l8tpollaris.L8PTargetList{})
 	sla.SetWebService(ws)
 
 	vnic.Resources().Services().Activate(sla, vnic)
