@@ -17,6 +17,7 @@ import (
 	"github.com/saichler/l8types/go/types/l8web"
 	"github.com/saichler/l8utils/go/utils/web"
 	"strconv"
+	"time"
 )
 
 const (
@@ -89,6 +90,7 @@ func openDBConection(dbname, user, pass string) *sql.DB {
 func InitTargets(p common.IORM, vnic ifs.IVNic, callback *TargetCallback) {
 	gsql := "select * from L8PTarget limit 500 page "
 	page := 0
+	upTargets := make([]*l8tpollaris.L8PTarget, 0)
 	for {
 		buff := bytes.Buffer{}
 		buff.WriteString(gsql)
@@ -110,9 +112,27 @@ func InitTargets(p common.IORM, vnic ifs.IVNic, callback *TargetCallback) {
 		for _, elem := range resp.Elements() {
 			item := elem.(*l8tpollaris.L8PTarget)
 			callback.validateNewIP(item)
+			if item.State == l8tpollaris.L8PTargetState_Up {
+				upTargets = append(upTargets, item)
+			}
 		}
 		page++
 	}
+
+	go func() {
+		time.Sleep(time.Second * 30)
+		for _, item := range upTargets {
+			collectorService, collectorArea := Links.Collector(item.LinksId)
+			item.State = l8tpollaris.L8PTargetState_Down
+			vnic.Multicast(collectorService, collectorArea, ifs.POST, item)
+		}
+
+		for _, item := range upTargets {
+			collectorService, collectorArea := Links.Collector(item.LinksId)
+			item.State = l8tpollaris.L8PTargetState_Up
+			vnic.RoundRobin(collectorService, collectorArea, ifs.POST, item)
+		}
+	}()
 }
 
 /*
