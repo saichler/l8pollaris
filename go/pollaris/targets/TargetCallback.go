@@ -2,6 +2,7 @@ package targets
 
 import (
 	"errors"
+	"github.com/saichler/l8orm/go/orm/common"
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
 	"github.com/saichler/l8types/go/ifs"
 	"sync"
@@ -9,10 +10,11 @@ import (
 
 type TargetCallback struct {
 	addressValidation *sync.Map
+	iorm              common.IORM
 }
 
-func newTargetCallback() *TargetCallback {
-	return &TargetCallback{addressValidation: &sync.Map{}}
+func newTargetCallback(iorm common.IORM) *TargetCallback {
+	return &TargetCallback{addressValidation: &sync.Map{}, iorm: iorm}
 }
 
 func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notification bool, vnic ifs.IVNic) (interface{}, error) {

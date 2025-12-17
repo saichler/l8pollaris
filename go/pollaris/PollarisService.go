@@ -97,11 +97,8 @@ func (this *PollarisService) TransactionConfig() ifs.ITransactionConfig {
 	return nil
 }
 func (this *PollarisService) WebService() ifs.IWebService {
-	ws := web.New(ServiceName, this.serviceArea,
-		&l8tpollaris.L8Pollaris{}, &l8web.L8Empty{},
-		&l8tpollaris.L8Pollaris{}, &l8web.L8Empty{},
-		nil, nil,
-		nil, nil,
-		nil, nil)
+	ws := web.New(ServiceName, ServiceArea, 0)
+	ws.AddEndpoint(&l8tpollaris.L8Pollaris{}, ifs.POST, &l8web.L8Empty{})
+	ws.AddEndpoint(&l8tpollaris.L8Pollaris{}, ifs.PUT, &l8web.L8Empty{})
 	return ws
 }
