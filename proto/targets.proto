@@ -88,3 +88,8 @@ message CTable {
 message CRow {
   map<int32, bytes> data = 1;
 }
+
+message TargetAction {
+  L8PTargetType type = 1;
+  L8PTargetState state = 2;
+}
