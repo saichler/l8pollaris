@@ -2,6 +2,7 @@ package targets
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
 	"github.com/saichler/l8ql/go/gsql/interpreter"
 	"github.com/saichler/l8srlz/go/serialize/object"
@@ -48,16 +49,16 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		}
 		for _, elem := range resp.Elements() {
 			item := elem.(*l8tpollaris.L8PTarget)
-			patchItem := &l8tpollaris.L8PTarget{}
-			patchItem.TargetId = item.TargetId
-			patchItem.State = state
-			targets = append(targets, patchItem)
+			item.State = state
+			targets = append(targets, item)
 			if collectorService == "" {
 				collectorService, collectorArea = Links.Collector(item.LinksId)
 			}
 		}
 		page++
 	}
+
+	fmt.Println("Sending start/stop to ", collectorService, " ", collectorArea)
 
 	bulk := make([]*l8tpollaris.L8PTarget, 0)
 	for _, target := range targets {
@@ -78,7 +79,7 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		}
 	}
 
-	if len(bulk) >= 0 {
+	if len(bulk) > 0 {
 		elems := object.New(nil, bulk)
 		err := this.iorm.Write(ifs.PATCH, elems, vnic.Resources())
 		if err != nil {
