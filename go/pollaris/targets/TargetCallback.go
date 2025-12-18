@@ -18,7 +18,7 @@ func newTargetCallback(iorm common.IORM) *TargetCallback {
 	return &TargetCallback{addressValidation: &sync.Map{}, iorm: iorm}
 }
 
-func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notification bool, vnic ifs.IVNic) (interface{}, error) {
+func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notification bool, vnic ifs.IVNic) (interface{}, bool, error) {
 	switch action {
 	case ifs.POST:
 		if !notification {
@@ -26,7 +26,7 @@ func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notifica
 			if ok {
 				fmt.Println("Performing Action:", targetAction)
 				this.startStopAll(targetAction.ActionState, targetAction.ActionType, vnic)
-				return nil, errors.New("Target Action Completed")
+				return nil, false, nil
 			}
 			list, ok := elem.(*l8tpollaris.L8PTargetList)
 			if ok {
@@ -34,17 +34,17 @@ func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notifica
 				for _, item := range list.List {
 					err := this.validateNewIP(item)
 					if err != nil {
-						return nil, err
+						return nil, true, err
 					}
 					elems = append(elems, item)
 				}
-				return elems, nil
+				return elems, true, nil
 			}
 			item, ok := elem.(*l8tpollaris.L8PTarget)
 			if ok {
 				err := this.validateNewIP(item)
 				if err != nil {
-					return nil, err
+					return nil, true, err
 				}
 			}
 		}
@@ -52,42 +52,42 @@ func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notifica
 		if !notification {
 			target, ok := elem.(*l8tpollaris.L8PTarget)
 			if !ok {
-				return nil, errors.New("invalid target")
+				return nil, true, errors.New("invalid target")
 			}
 			_, err := Target(target.TargetId, vnic)
 			if err != nil {
-				return nil, err
+				return nil, true, err
 			}
 		}
 	}
 
-	return nil, nil
+	return nil, true, nil
 }
 
-func (this *TargetCallback) After(elem interface{}, action ifs.Action, notification bool, vnic ifs.IVNic) (interface{}, error) {
+func (this *TargetCallback) After(elem interface{}, action ifs.Action, notification bool, vnic ifs.IVNic) (interface{}, bool, error) {
 	if action == ifs.POST && !notification {
 		target, ok := elem.(*l8tpollaris.L8PTarget)
 		if !ok {
-			return nil, errors.New("invalid target")
+			return nil, true, errors.New("invalid target")
 		}
 		if target.State == l8tpollaris.L8PTargetState_Up {
 			collectorService, collectorArea := Links.Collector(target.LinksId)
 			vnic.Resources().Logger().Info("Sending target to collector:", collectorService, " area ", collectorArea)
 			err := vnic.RoundRobin(collectorService, collectorArea, ifs.POST, target)
 			if err != nil {
-				return nil, err
+				return nil, true, err
 			}
 		}
 	}
 	if action == ifs.PATCH && !notification {
 		target, ok := elem.(*l8tpollaris.L8PTarget)
 		if !ok {
-			return nil, errors.New("invalid target")
+			return nil, true, errors.New("invalid target")
 		}
 
 		currTarget, err := Target(target.TargetId, vnic)
 		if err != nil {
-			return nil, err
+			return nil, true, err
 		}
 		collectorService, collectorArea := Links.Collector(currTarget.LinksId)
 
@@ -97,18 +97,18 @@ func (this *TargetCallback) After(elem interface{}, action ifs.Action, notificat
 				" with hosts ", currTarget.Hosts)
 			err = vnic.Multicast(collectorService, collectorArea, ifs.POST, currTarget)
 			if err != nil {
-				return nil, err
+				return nil, true, err
 			}
 		case l8tpollaris.L8PTargetState_Up:
 			vnic.Resources().Logger().Info("Sending start target to collector:", collectorService, " area ", collectorArea,
 				" with hosts ", currTarget.Hosts)
 			err = vnic.RoundRobin(collectorService, collectorArea, ifs.POST, currTarget)
 			if err != nil {
-				return nil, err
+				return nil, true, err
 			}
 		}
 	}
-	return nil, nil
+	return nil, true, nil
 }
 
 func (this *TargetCallback) validateNewIP(target *l8tpollaris.L8PTarget) error {
