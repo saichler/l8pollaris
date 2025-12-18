@@ -90,6 +90,6 @@ message CRow {
 }
 
 message TargetAction {
-  L8PTargetType type = 1;
-  L8PTargetState state = 2;
+  L8PTargetType actionType = 1;
+  L8PTargetState actionState = 2;
 }

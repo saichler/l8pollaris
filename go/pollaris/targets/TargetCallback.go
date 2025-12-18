@@ -2,6 +2,7 @@ package targets
 
 import (
 	"errors"
+	"fmt"
 	"github.com/saichler/l8orm/go/orm/common"
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
 	"github.com/saichler/l8types/go/ifs"
@@ -23,7 +24,8 @@ func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notifica
 		if !notification {
 			targetAction, ok := elem.(*l8tpollaris.TargetAction)
 			if ok {
-				this.startStopAll(targetAction.State, targetAction.Type, vnic)
+				fmt.Println("Performing Action:", targetAction)
+				this.startStopAll(targetAction.ActionState, targetAction.ActionType, vnic)
 				return nil, errors.New("Target Action Completed")
 			}
 			list, ok := elem.(*l8tpollaris.L8PTargetList)
