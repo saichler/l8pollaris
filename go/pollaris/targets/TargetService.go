@@ -38,6 +38,8 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 	sla.SetPrimaryKeys("TargetId")
 	sla.SetArgs(p)
 
+	vnic.Resources().Registry().Register(&l8tpollaris.TargetAction{})
+
 	ws := web.New(ServiceName, ServiceArea, 0)
 	ws.AddEndpoint(&l8tpollaris.L8PTarget{}, ifs.POST, &l8web.L8Empty{})
 	ws.AddEndpoint(&l8tpollaris.L8PTargetList{}, ifs.POST, &l8web.L8Empty{})
