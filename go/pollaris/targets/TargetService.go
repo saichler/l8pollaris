@@ -36,6 +36,7 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 	sla.SetServiceItem(&l8tpollaris.L8PTarget{})
 	sla.SetServiceItemList(&l8tpollaris.L8PTargetList{})
 	sla.SetPrimaryKeys("TargetId")
+	sla.SetNonUniqueKeys("InventoryType")
 	sla.SetArgs(p)
 
 	vnic.Resources().Registry().Register(&l8tpollaris.TargetAction{})
