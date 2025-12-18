@@ -17,14 +17,14 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 	gsql.Add(" and (State=0 or State=")
 	switch state {
 	case l8tpollaris.L8PTargetState_Up:
-		gsql.Add(gsql.StringOf(l8tpollaris.L8PTargetState_Down))
+		gsql.Add(strconv.Itoa(int(l8tpollaris.L8PTargetState_Down)))
 	case l8tpollaris.L8PTargetState_Down:
-		gsql.Add(gsql.StringOf(l8tpollaris.L8PTargetState_Up))
+		gsql.Add(strconv.Itoa(int(l8tpollaris.L8PTargetState_Up)))
 	default:
 		vnic.Resources().Logger().Error("Not Supported Target State ", state.String())
 		return
 	}
-	gsql.Add(")")
+	gsql.Add(") limit 500 page ")
 	fmt.Println("query is:", gsql.String())
 
 	collectorService := ""
