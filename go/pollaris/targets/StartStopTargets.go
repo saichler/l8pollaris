@@ -14,7 +14,7 @@ import (
 func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l8tpollaris.L8PTargetType, vnic ifs.IVNic) {
 	gsql := strings.New("select * from L8PTarget where InventoryType=")
 	gsql.Add(gsql.StringOf(typ))
-	gsql.Add(" and State=")
+	gsql.Add(" and (State=0 or State=")
 	switch state {
 	case l8tpollaris.L8PTargetState_Up:
 		gsql.Add(gsql.StringOf(l8tpollaris.L8PTargetState_Down))
@@ -24,7 +24,7 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		vnic.Resources().Logger().Error("Not Supported Target State ", state.String())
 		return
 	}
-
+	gsql.Add(")")
 	fmt.Println("query is:", gsql.String())
 
 	collectorService := ""
