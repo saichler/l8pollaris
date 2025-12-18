@@ -25,6 +25,8 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		return
 	}
 
+	fmt.Println("query is:", gsql.String())
+
 	collectorService := ""
 	collectorArea := byte(0)
 	page := 0
@@ -39,14 +41,18 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		}
 		resp := this.iorm.Read(q, vnic.Resources())
 		if resp.Error() != nil {
+			fmt.Println(resp.Error().Error())
 			break
 		}
 		if resp.Elements() == nil || len(resp.Elements()) == 0 {
+			fmt.Println("Empty Result")
 			break
 		}
 		if resp.Element() == nil {
+			fmt.Println("Element is nil")
 			break
 		}
+		fmt.Println("Size of elements=", len(resp.Elements()))
 		for _, elem := range resp.Elements() {
 			item := elem.(*l8tpollaris.L8PTarget)
 			item.State = state
