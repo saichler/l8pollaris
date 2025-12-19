@@ -12,8 +12,10 @@ import (
 )
 
 func (this *TargetCallback) InitTargets(vnic ifs.IVNic) {
+	time.Sleep(time.Second * 30)
 	leader := vnic.Resources().Services().GetLeader(ServiceName, ServiceArea)
 	if leader != vnic.Resources().SysConfig().LocalUuid {
+		fmt.Println("Not the leader of this service:", leader)
 		return
 	}
 	gsql := "select * from L8PTarget limit 500 page "
@@ -47,24 +49,21 @@ func (this *TargetCallback) InitTargets(vnic ifs.IVNic) {
 		page++
 	}
 
-	go func() {
-		time.Sleep(time.Second * 30)
-		cService := ""
-		cArea := byte(0)
-		for _, item := range upTargets {
-			if cService == "" {
-				cService, cArea = Links.Collector(item.LinksId)
-			}
-			item.State = l8tpollaris.L8PTargetState_Down
-			vnic.Multicast(cService, cArea, ifs.POST, item)
+	cService := ""
+	cArea := byte(0)
+	for _, item := range upTargets {
+		if cService == "" {
+			cService, cArea = Links.Collector(item.LinksId)
 		}
-		fmt.Println("Round Robin")
-		roundRobin := health.NewRoundRobin(cService, cArea, vnic.Resources())
-		for _, item := range upTargets {
-			item.State = l8tpollaris.L8PTargetState_Up
-			next := roundRobin.Next()
-			fmt.Println("Next=", next)
-			vnic.Unicast(next, cService, cArea, ifs.POST, item)
-		}
-	}()
+		item.State = l8tpollaris.L8PTargetState_Down
+		vnic.Multicast(cService, cArea, ifs.POST, item)
+	}
+	fmt.Println("Round Robin")
+	roundRobin := health.NewRoundRobin(cService, cArea, vnic.Resources())
+	for _, item := range upTargets {
+		item.State = l8tpollaris.L8PTargetState_Up
+		next := roundRobin.Next()
+		fmt.Println("Next=", next)
+		vnic.Unicast(next, cService, cArea, ifs.POST, item)
+	}
 }

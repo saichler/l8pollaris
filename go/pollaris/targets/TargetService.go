@@ -53,7 +53,7 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 
 	vnic.Resources().Services().Activate(sla, vnic)
 
-	callback.InitTargets(vnic)
+	go callback.InitTargets(vnic)
 }
 
 func Targets(vnic ifs.IVNic) (ifs.IServiceHandler, bool) {
