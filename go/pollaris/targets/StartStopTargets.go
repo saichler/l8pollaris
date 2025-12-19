@@ -17,6 +17,7 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 	if leader != vnic.Resources().SysConfig().LocalUuid {
 		return
 	}
+
 	gsql := strings.New("select * from L8PTarget where InventoryType=")
 	gsql.Add(gsql.StringOf(typ))
 	gsql.Add(" and (State=0 or State=")
@@ -96,9 +97,13 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		time.Sleep(time.Microsecond * 10)
 		switch target.State {
 		case l8tpollaris.L8PTargetState_Up:
-			vnic.RoundRobin(collectorService, collectorArea, ifs.POST, target)
+			next := vnic.Resources().Services().RoundRobinParticipants(collectorService, collectorArea, 1)
+			for sn, _ := range next {
+				vnic.Unicast(sn, collectorService, collectorArea, ifs.POST, target)
+			}
 		case l8tpollaris.L8PTargetState_Down:
 			vnic.Multicast(collectorService, collectorArea, ifs.POST, target)
 		}
 	}
+
 }
