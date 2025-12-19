@@ -10,6 +10,10 @@ import (
 )
 
 func (this *TargetCallback) InitTargets(vnic ifs.IVNic) {
+	leader := vnic.Resources().Services().GetLeader(ServiceName, ServiceArea)
+	if leader != vnic.Resources().SysConfig().LocalUuid {
+		return
+	}
 	gsql := "select * from L8PTarget limit 500 page "
 	page := 0
 	upTargets := make([]*l8tpollaris.L8PTarget, 0)

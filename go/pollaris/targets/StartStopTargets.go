@@ -9,9 +9,14 @@ import (
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8utils/go/utils/strings"
 	"strconv"
+	"time"
 )
 
 func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l8tpollaris.L8PTargetType, vnic ifs.IVNic) {
+	leader := vnic.Resources().Services().GetLeader(ServiceName, ServiceArea)
+	if leader != vnic.Resources().SysConfig().LocalUuid {
+		return
+	}
 	gsql := strings.New("select * from L8PTarget where InventoryType=")
 	gsql.Add(gsql.StringOf(typ))
 	gsql.Add(" and (State=0 or State=")
@@ -77,12 +82,6 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 			}
 			bulk = make([]*l8tpollaris.L8PTarget, 0)
 		}
-		switch target.State {
-		case l8tpollaris.L8PTargetState_Up:
-			vnic.RoundRobin(collectorService, collectorArea, ifs.POST, target)
-		case l8tpollaris.L8PTargetState_Down:
-			vnic.Multicast(collectorService, collectorArea, ifs.POST, target)
-		}
 	}
 
 	if len(bulk) > 0 {
@@ -90,6 +89,16 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		err := this.iorm.Write(ifs.PATCH, elems, vnic.Resources())
 		if err != nil {
 			vnic.Resources().Logger().Error(err.Error())
+		}
+	}
+
+	for _, target := range targets {
+		time.Sleep(time.Microsecond * 10)
+		switch target.State {
+		case l8tpollaris.L8PTargetState_Up:
+			vnic.RoundRobin(collectorService, collectorArea, ifs.POST, target)
+		case l8tpollaris.L8PTargetState_Down:
+			vnic.Multicast(collectorService, collectorArea, ifs.POST, target)
 		}
 	}
 }
