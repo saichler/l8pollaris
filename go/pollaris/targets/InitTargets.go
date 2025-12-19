@@ -58,12 +58,11 @@ func (this *TargetCallback) InitTargets(vnic ifs.IVNic) {
 		item.State = l8tpollaris.L8PTargetState_Down
 		vnic.Multicast(cService, cArea, ifs.POST, item)
 	}
-	fmt.Println("Round Robin")
+	fmt.Println("Round Robin for ", len(upTargets), " targets")
 	roundRobin := health.NewRoundRobin(cService, cArea, vnic.Resources())
 	for _, item := range upTargets {
 		item.State = l8tpollaris.L8PTargetState_Up
 		next := roundRobin.Next()
-		fmt.Println("Next=", next)
 		vnic.Unicast(next, cService, cArea, ifs.POST, item)
 	}
 }
