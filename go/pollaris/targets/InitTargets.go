@@ -2,6 +2,7 @@ package targets
 
 import (
 	"bytes"
+	"github.com/saichler/l8bus/go/overlay/health"
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
 	"github.com/saichler/l8ql/go/gsql/interpreter"
 	"github.com/saichler/l8types/go/ifs"
@@ -47,16 +48,21 @@ func (this *TargetCallback) InitTargets(vnic ifs.IVNic) {
 
 	go func() {
 		time.Sleep(time.Second * 30)
+		cService := ""
+		cArea := byte(0)
 		for _, item := range upTargets {
-			collectorService, collectorArea := Links.Collector(item.LinksId)
+			if cService == "" {
+				cService, cArea = Links.Collector(item.LinksId)
+			}
 			item.State = l8tpollaris.L8PTargetState_Down
-			vnic.Multicast(collectorService, collectorArea, ifs.POST, item)
+			vnic.Multicast(cService, cArea, ifs.POST, item)
 		}
 
+		roundRobin := health.NewRoundRobin(cService, cArea, vnic.Resources())
 		for _, item := range upTargets {
-			collectorService, collectorArea := Links.Collector(item.LinksId)
 			item.State = l8tpollaris.L8PTargetState_Up
-			vnic.RoundRobin(collectorService, collectorArea, ifs.POST, item)
+			next := roundRobin.Next()
+			vnic.Unicast(next, cService, cArea, ifs.POST, item)
 		}
 	}()
 }

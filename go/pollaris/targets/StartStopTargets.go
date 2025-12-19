@@ -94,22 +94,12 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		}
 	}
 
-	participantsMap := health.Participants(collectorService, collectorArea, vnic.Resources())
-	participants := make([]string, 0)
-	for uuid, _ := range participantsMap {
-		participants = append(participants, uuid)
-	}
-	roundRobin := 0
-	fmt.Println("Number of participants=", len(participants))
+	roundRobin := health.NewRoundRobin(collectorService, collectorArea, vnic.Resources())
 	for _, target := range targets {
 		time.Sleep(time.Microsecond * 10)
 		switch target.State {
 		case l8tpollaris.L8PTargetState_Up:
-			if roundRobin >= len(participants) {
-				roundRobin = 0
-			}
-			next := participants[roundRobin]
-			roundRobin++
+			next := roundRobin.Next()
 			vnic.Unicast(next, collectorService, collectorArea, ifs.POST, target)
 		case l8tpollaris.L8PTargetState_Down:
 			vnic.Multicast(collectorService, collectorArea, ifs.POST, target)
