@@ -2,6 +2,7 @@ package targets
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/saichler/l8bus/go/overlay/health"
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
 	"github.com/saichler/l8ql/go/gsql/interpreter"
@@ -57,11 +58,12 @@ func (this *TargetCallback) InitTargets(vnic ifs.IVNic) {
 			item.State = l8tpollaris.L8PTargetState_Down
 			vnic.Multicast(cService, cArea, ifs.POST, item)
 		}
-
+		fmt.Println("Round Robin")
 		roundRobin := health.NewRoundRobin(cService, cArea, vnic.Resources())
 		for _, item := range upTargets {
 			item.State = l8tpollaris.L8PTargetState_Up
 			next := roundRobin.Next()
+			fmt.Println("Next=", next)
 			vnic.Unicast(next, cService, cArea, ifs.POST, item)
 		}
 	}()
