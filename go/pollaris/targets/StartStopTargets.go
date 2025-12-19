@@ -3,6 +3,7 @@ package targets
 import (
 	"bytes"
 	"fmt"
+	"github.com/saichler/l8bus/go/overlay/health"
 	"github.com/saichler/l8pollaris/go/types/l8tpollaris"
 	"github.com/saichler/l8ql/go/gsql/interpreter"
 	"github.com/saichler/l8srlz/go/serialize/object"
@@ -93,14 +94,23 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		}
 	}
 
+	participantsMap := health.Participants(collectorService, collectorArea, vnic.Resources())
+	participants := make([]string, 0)
+	for uuid, _ := range participantsMap {
+		participants = append(participants, uuid)
+	}
+	roundRobin := 0
+	fmt.Println("Number of participants=", len(participants))
 	for _, target := range targets {
 		time.Sleep(time.Microsecond * 10)
 		switch target.State {
 		case l8tpollaris.L8PTargetState_Up:
-			next := vnic.Resources().Services().RoundRobinParticipants(collectorService, collectorArea, 1)
-			for sn, _ := range next {
-				vnic.Unicast(sn, collectorService, collectorArea, ifs.POST, target)
+			if roundRobin >= len(participants) {
+				roundRobin = 0
 			}
+			next := participants[roundRobin]
+			roundRobin++
+			vnic.Unicast(next, collectorService, collectorArea, ifs.POST, target)
 		case l8tpollaris.L8PTargetState_Down:
 			vnic.Multicast(collectorService, collectorArea, ifs.POST, target)
 		}
