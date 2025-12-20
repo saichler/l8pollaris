@@ -100,6 +100,7 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 		switch target.State {
 		case l8tpollaris.L8PTargetState_Up:
 			next := roundRobin.Next()
+			fmt.Println("Next=", next, " target=", target)
 			vnic.Unicast(next, collectorService, collectorArea, ifs.POST, target)
 		case l8tpollaris.L8PTargetState_Down:
 			vnic.Multicast(collectorService, collectorArea, ifs.POST, target)
