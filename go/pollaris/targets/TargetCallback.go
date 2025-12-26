@@ -1,3 +1,16 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package targets
 
 import (
@@ -9,15 +22,35 @@ import (
 	"sync"
 )
 
+// TargetCallback implements lifecycle hooks for target operations.
+// It provides Before and After callbacks that are invoked during
+// target CRUD operations to perform validation, address tracking,
+// and collector notification.
 type TargetCallback struct {
+	// addressValidation tracks all registered IP addresses to prevent duplicates
 	addressValidation *sync.Map
-	iorm              common.IORM
+	// iorm is the ORM interface for database operations
+	iorm common.IORM
 }
 
+// newTargetCallback creates a new TargetCallback with the given ORM interface.
+// It initializes the address validation map for tracking registered IPs.
 func newTargetCallback(iorm common.IORM) *TargetCallback {
 	return &TargetCallback{addressValidation: &sync.Map{}, iorm: iorm}
 }
 
+// Before is called before a target operation is persisted.
+// For POST operations:
+//   - Handles TargetAction requests to start/stop all targets of a type
+//   - Validates IP addresses for L8PTargetList and L8PTarget to prevent duplicates
+//
+// For PATCH operations:
+//   - Verifies the target exists before allowing updates
+//
+// Returns (elements, continue, error) where:
+//   - elements: modified element(s) to process
+//   - continue: whether to proceed with the operation
+//   - error: any validation error
 func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notification bool, vnic ifs.IVNic) (interface{}, bool, error) {
 	switch action {
 	case ifs.POST:
@@ -64,6 +97,13 @@ func (this *TargetCallback) Before(elem interface{}, action ifs.Action, notifica
 	return nil, true, nil
 }
 
+// After is called after a target operation is persisted.
+// For POST operations with UP state: sends the target to a collector via round-robin
+// For PATCH operations: notifies collectors of state changes
+//   - DOWN state: multicasts to all collectors to stop polling
+//   - UP state: uses round-robin to assign to a specific collector
+//
+// Returns (nil, true, error) - the first return value is unused for After callbacks.
 func (this *TargetCallback) After(elem interface{}, action ifs.Action, notification bool, vnic ifs.IVNic) (interface{}, bool, error) {
 	if action == ifs.POST && !notification {
 		target, ok := elem.(*l8tpollaris.L8PTarget)
@@ -111,6 +151,11 @@ func (this *TargetCallback) After(elem interface{}, action ifs.Action, notificat
 	return nil, true, nil
 }
 
+// validateNewIP validates that all IP addresses in the target are unique.
+// It checks each host's protocol configurations for duplicate addresses.
+// If validation passes, the addresses are registered in the addressValidation map.
+// Returns an error if the target has no hosts, hosts have no configs, or
+// any address is already registered.
 func (this *TargetCallback) validateNewIP(target *l8tpollaris.L8PTarget) error {
 	if target.Hosts == nil || len(target.Hosts) == 0 {
 		return errors.New("invalid target, has no hosts")

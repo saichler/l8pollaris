@@ -1,3 +1,16 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package targets
 
 import (
@@ -13,6 +26,14 @@ import (
 	"time"
 )
 
+// startStopAll performs bulk start or stop operations on all targets of a specific type.
+// Only the service leader executes this operation to ensure consistency.
+// The method:
+// 1. Queries targets by inventory type and current state (opposite of desired state)
+// 2. Updates target states in the database in batches of 500
+// 3. For UP state: uses round-robin to distribute targets across collectors
+// 4. For DOWN state: multicasts to all collectors to stop the target
+// A small delay (10 microseconds) is added between sends to prevent overwhelming collectors.
 func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l8tpollaris.L8PTargetType, vnic ifs.IVNic) {
 	leader := vnic.Resources().Services().GetLeader(ServiceName, ServiceArea)
 	if leader != vnic.Resources().SysConfig().LocalUuid {

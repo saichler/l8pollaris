@@ -1,3 +1,16 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package targets
 
 import (
@@ -16,12 +29,25 @@ import (
 )
 
 const (
+	// ServiceName is the registered name of the Targets service in the service registry.
 	ServiceName = "Targets"
+	// ServiceArea defines the service area (partition) for the Targets service.
+	// Area 91 is a dedicated area for target management operations.
 	ServiceArea = byte(91)
 )
 
+// Links is the global TargetLinks implementation that routes targets to services.
+// This must be set by the application before calling Activate.
 var Links TargetLinks
 
+// Activate initializes and registers the Targets service with the VNic.
+// It establishes a PostgreSQL database connection, creates the ORM service,
+// sets up lifecycle callbacks, and configures web service endpoints.
+// After activation, it starts the InitTargets goroutine to restore target state.
+// Parameters:
+//   - creds: credential identifier for database authentication
+//   - dbname: PostgreSQL database name
+//   - vnic: the virtual network interface for service communication
 func Activate(creds, dbname string, vnic ifs.IVNic) {
 	_, user, pass, _, err := vnic.Resources().Security().Credential(creds, dbname, vnic.Resources())
 	if err != nil {
@@ -56,10 +82,15 @@ func Activate(creds, dbname string, vnic ifs.IVNic) {
 	go callback.InitTargets(vnic)
 }
 
+// Targets retrieves the Targets service handler from the service registry.
+// Returns the handler and true if found, nil and false otherwise.
 func Targets(vnic ifs.IVNic) (ifs.IServiceHandler, bool) {
 	return vnic.Resources().Services().ServiceHandler(ServiceName, ServiceArea)
 }
 
+// Target retrieves a single target by its ID from the database.
+// Returns the target and nil error on success, or nil and an error
+// if the service is not found or the target doesn't exist.
 func Target(targetId string, vnic ifs.IVNic) (*l8tpollaris.L8PTarget, error) {
 	this, ok := Targets(vnic)
 	if !ok {
@@ -73,6 +104,9 @@ func Target(targetId string, vnic ifs.IVNic) (*l8tpollaris.L8PTarget, error) {
 	return resp.Element().(*l8tpollaris.L8PTarget), nil
 }
 
+// openDBConection establishes a connection to the PostgreSQL database.
+// It uses localhost (127.0.0.1) on port 5432 with SSL disabled.
+// Panics if the connection cannot be established or ping fails.
 func openDBConection(dbname, user, pass string) *sql.DB {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",

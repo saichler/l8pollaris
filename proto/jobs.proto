@@ -1,3 +1,20 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// jobs.proto defines the collection job types for the Layer 8 ecosystem.
+// CJob represents a single data collection task with its execution context,
+// timing information, and results.
+
 syntax = "proto3";
 
 package l8tpollaris;
@@ -9,20 +26,37 @@ option go_package = "./types/l8tpollaris";
 
 import "pollaris.proto";
 
+// CJob represents a collection job instance.
+// It contains the job configuration, execution status, timing, and results.
 message CJob {
+  // error contains any error message from the last execution
   string error = 1;
+  // result contains the collected data from the last execution
   bytes result = 2;
+  // started is the Unix timestamp when execution began
   int64 started = 3;
+  // ended is the Unix timestamp when execution completed
   int64 ended = 4;
+  // cadence defines the polling schedule for this job
   L8PCadencePlan cadence = 5;
+  // timeout is the maximum execution time in milliseconds
   int64 timeout = 6;
+  // target_id identifies the target this job runs against
   string target_id = 7;
+  // host_id identifies the specific host within the target
   string host_id = 8;
+  // pollaris_name references the polling configuration
   string pollaris_name = 9;
+  // job_name identifies the specific poll within the pollaris
   string job_name = 10;
+  // linksId determines routing to collectors/parsers
   string linksId = 11;
+  // arguments contains job-specific parameters
   map<string, string> arguments = 12;
+  // lastResult stores the previous collection result for comparison
   bytes lastResult = 13;
+  // error_count tracks consecutive errors for adaptive handling
   int32 error_count = 14;
+  // always indicates if this job runs on every cycle regardless of cadence
   bool always = 15;
 }

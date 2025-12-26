@@ -1,3 +1,20 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package targets provides target lifecycle management for the Layer 8 ecosystem.
+// It handles the creation, persistence, and distribution of polling targets
+// to collectors using PostgreSQL for storage and round-robin load balancing
+// for target distribution.
 package targets
 
 import (
@@ -11,6 +28,14 @@ import (
 	"time"
 )
 
+// InitTargets initializes all targets from the database on service startup.
+// It runs as a goroutine after a 30-second delay to allow the system to stabilize.
+// Only the service leader performs initialization to avoid duplicate operations.
+// The method:
+// 1. Queries all targets from the database in pages of 500
+// 2. Validates IP addresses for each target
+// 3. First multicasts a DOWN state to all collectors (to clear stale state)
+// 4. Then uses round-robin to distribute UP targets across available collectors
 func (this *TargetCallback) InitTargets(vnic ifs.IVNic) {
 	time.Sleep(time.Second * 30)
 	leader := vnic.Resources().Services().GetLeader(ServiceName, ServiceArea)

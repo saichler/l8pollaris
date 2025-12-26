@@ -1,3 +1,21 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// targets.proto defines the target device types for the Layer 8 ecosystem.
+// Targets represent devices or systems that are polled for data collection.
+// This includes network devices, hosts, GPUs, VMs, Kubernetes clusters,
+// storage systems, and power equipment.
+
 syntax = "proto3";
 
 package l8tpollaris;
@@ -10,86 +28,152 @@ option go_package = "./types/l8tpollaris";
 import "pollaris.proto";
 import "api.proto";
 
+// L8PTargetList contains a list of targets with optional metadata.
+// Used for bulk operations and query responses.
 message L8PTargetList {
+  // list contains the target objects
   repeated L8PTarget list = 1;
+  // metadata contains pagination and query information
   l8api.L8MetaData metadata = 2;
 }
 
+// L8PTargetState represents the operational state of a target.
 enum L8PTargetState {
+  // InvalidState is the default/unset value
   InvalidState = 0;
+  // Down indicates the target is not being polled
   Down = 1;
+  // Up indicates the target is actively being polled
   Up = 2;
+  // Maintenance indicates the target is under maintenance
   Maintenance = 3;
+  // Offline indicates the target is unreachable
   Offline = 4;
 }
 
+// L8PTargetType categorizes the type of infrastructure being monitored.
 enum L8PTargetType {
+  // InvalidType is the default/unset value
   InvalidType = 0;
+  // Network_Device represents routers, switches, firewalls, etc.
   Network_Device = 1;
+  // GPUS represents GPU computing resources
   GPUS = 2;
+  // Hosts represents physical or virtual server hosts
   Hosts = 3;
+  // Virtual_Machine represents VM instances
   Virtual_Machine = 4;
+  // K8s_Cluster represents Kubernetes clusters
   K8s_Cluster = 5;
+  // Storage represents storage arrays and systems
   Storage = 6;
+  // Power represents power distribution and UPS systems
   Power = 7;
 }
 
+// L8PTarget represents a device or system to be monitored.
+// It contains connection information via hosts and routing info via links_id.
 message L8PTarget {
+  // target_id is the unique identifier for this target
   string target_id = 1;
+  // links_id determines how this target is routed to collectors/parsers
   string links_id = 2;
+  // hosts maps host IDs to their connection configurations
   map<string, L8PHost> hosts = 3;
+  // state indicates the current operational state
   L8PTargetState state = 4;
+  // inventory_type categorizes the type of target
   L8PTargetType inventory_type = 5;
 }
 
+// L8PHost represents a single host within a target.
+// A target may have multiple hosts (e.g., redundant management interfaces).
 message L8PHost {
+  // host_id is the unique identifier for this host
   string host_id = 1;
+  // configs maps protocol IDs to their connection configurations
   map<int32, L8PHostProtocol> configs = 3;
+  // polls maps poll names to their configurations for this host
   map<string, string> polls = 4;
+  // groups maps group names for organizing poll configurations
   map<string, string> groups = 5;
 }
 
+// L8PHostProtocol contains connection settings for a specific protocol.
 message L8PHostProtocol {
+  // protocol specifies which protocol this configuration is for
   L8PProtocol protocol = 1;
+  // addr is the IP address or hostname
   string addr = 2;
+  // port is the connection port number
   int32 port = 3;
+  // cred_id references the credential to use for authentication
   string cred_id = 4;
+  // prompt contains expected CLI prompts for SSH connections
   repeated string prompt = 5;
+  // terminal specifies the terminal type for SSH
   string terminal = 6;
+  // terminal_commands are commands run after SSH connection
   repeated string terminal_commands = 7;
+  // timeout is the connection timeout in milliseconds
   int64 timeout = 8;
+  // cert contains TLS certificate data
   string cert = 9;
+  // http_prefix is the URL prefix for REST-based protocols
   string http_prefix = 10;
+  // ainfo contains authentication configuration for APIs
   AuthInfo ainfo = 11;
 }
 
+// AuthInfo contains API authentication settings.
 message AuthInfo {
+  // need_auth indicates if authentication is required
   bool need_auth = 1;
+  // authBody is the authentication request body template
   string authBody = 2;
+  // authUserField is the field name for username in auth body
   string authUserField = 3;
+  // authPassField is the field name for password in auth body
   string authPassField = 4;
+  // authResp is the expected field in auth response
   string authResp = 5;
+  // authToken stores the current authentication token
   string authToken = 6;
+  // auth_path is the URL path for authentication endpoint
   string auth_path = 7;
+  // isApiKey indicates if using API key authentication
   bool isApiKey = 8;
+  // api_user is the API username/identifier
   string api_user = 9;
+  // api_key is the API key value
   string api_key = 10;
 }
 
+// CMap represents collected key-value map data.
 message CMap {
+  // data maps string keys to binary values
   map<string, bytes> data = 1;
 }
 
+// CTable represents collected tabular data.
 message CTable {
+  // columns maps column indices to column names
   map<int32, string> columns = 1;
+  // rows maps row indices to row data
   map<int32, CRow> rows = 2;
 }
 
+// CRow represents a single row of tabular data.
 message CRow {
+  // data maps column indices to cell values
   map<int32, bytes> data = 1;
 }
 
+// TargetAction is used to request bulk operations on targets.
+// It triggers start/stop operations for all targets of a specific type.
 message TargetAction {
+  // actionType specifies which target type to affect
   L8PTargetType actionType = 1;
+  // actionState specifies the desired state (Up or Down)
   L8PTargetState actionState = 2;
 }
