@@ -117,7 +117,7 @@ func (this *TargetCallback) startStopAll(state l8tpollaris.L8PTargetState, typ l
 
 	roundRobin := health.NewRoundRobin(collectorService, collectorArea, vnic.Resources())
 	for _, target := range targets {
-		time.Sleep(time.Microsecond * 10)
+		time.Sleep(time.Microsecond)
 		switch target.State {
 		case l8tpollaris.L8PTargetState_Up:
 			next := roundRobin.Next()
