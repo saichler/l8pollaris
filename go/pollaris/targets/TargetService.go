@@ -123,33 +123,3 @@ func openDBConection(dbname, user, pass string) *sql.DB {
 
 	return db
 }
-
-/*
-   func (this *TargetService) startDevice(device *l8tpollaris.L8PTarget, vnic ifs.IVNic, isNotificaton bool) {
-   	vnic.Resources().Logger().Info("TargetService.startDevice: ", device.TargetId)
-   	if !isNotificaton {
-   		err := vnic.RoundRobin(common.CollectorService, this.serviceArea, ifs.POST, device)
-   		if err != nil {
-   			vnic.Resources().Logger().Error("Device Service:", err.Error())
-   		}
-   	}
-   }
-
-   func (this *TargetService) updateDevice(device *l8tpollaris.L8PTarget, vnic ifs.IVNic, isNotificaton bool) {
-   	vnic.Resources().Logger().Info("TargetService.startDevice: ", device.TargetId)
-   	if !isNotificaton {
-   		err := vnic.Multicast(common.CollectorService, this.serviceArea, ifs.PUT, device)
-   		if err != nil {
-   			vnic.Resources().Logger().Error("Device Service:", " ", err.Error())
-   		}
-   	}
-   }
-
-   func (this *TargetService) stopDevice(device *l8tpollaris.L8PTarget, vnic ifs.IVNic, isNotificaton bool) {
-   	if !isNotificaton {
-   		err := vnic.Multicast(common.CollectorService, this.serviceArea, ifs.DELETE, device)
-   		if err != nil {
-   			vnic.Resources().Logger().Error("Device Service:", " ", err.Error())
-   		}
-   	}
-   }*/
