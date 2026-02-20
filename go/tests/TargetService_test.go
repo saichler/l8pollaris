@@ -33,7 +33,7 @@ import (
 // 5. Waits for collector distribution to complete
 func TestTargetService(t *testing.T) {
 	nic := topo.VnicByVnetNum(2, 2)
-	targets.Activate("postgres", "probler", nic)
+	targets.Activate("admin", "admin", nic)
 	tr, _ := targets.Targets(nic)
 	device := creates.CreateDevice("10.10.10.10", common.NetworkDevice_Links_ID, "sim")
 	resp := tr.Post(object.New(nil, device), nic)
