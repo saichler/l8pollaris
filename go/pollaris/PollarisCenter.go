@@ -83,43 +83,9 @@ func (this *PollarisCenter) getPollName(key string) (string, bool) {
 	return pollName, ok
 }
 
-// getGroup returns a copy of the group's key-to-name mapping.
-// Returns nil if the group does not exist. The returned map is a copy
-// to prevent concurrent modification issues.
-func (this *PollarisCenter) getGroup(name string) map[string]string {
-	this.mtx.RLock()
-	defer this.mtx.RUnlock()
-	group := this.groups[name]
-	if group != nil {
-		result := make(map[string]string)
-		for k, v := range group {
-			result[k] = v
-		}
-		return result
-	}
-	return nil
-}
-
-// deleteFromGroup removes an entry from a group's key-to-name mapping.
-// This method is thread-safe using a write lock.
-func (this *PollarisCenter) deleteFromGroup(gEntry map[string]string, key string) {
-	this.mtx.Lock()
-	defer this.mtx.Unlock()
-	delete(gEntry, key)
-}
-
-// deleteFromKey2Name removes a key from the key-to-name mapping.
-// This method is thread-safe using a write lock.
-func (this *PollarisCenter) deleteFromKey2Name(key string) {
-	this.mtx.Lock()
-	defer this.mtx.Unlock()
-	delete(this.key2Name, key)
-}
-
-// deleteExisting removes an existing pollaris from all its associated groups
-// and from the key-to-name mapping. This is called before updating a pollaris
-// to ensure clean state transition.
-func (this *PollarisCenter) deleteExisting(pollrs *l8tpollaris.L8Pollaris, key string) {
+// cleanupGroupsLocked removes a key from all groups of the existing pollaris.
+// Caller must hold this.mtx write lock.
+func (this *PollarisCenter) cleanupGroupsLocked(pollrs *l8tpollaris.L8Pollaris, key string) {
 	ePoll, _ := this.name2Poll.Get(pollrs)
 	if ePoll == nil {
 		return
@@ -127,13 +93,12 @@ func (this *PollarisCenter) deleteExisting(pollrs *l8tpollaris.L8Pollaris, key s
 	existPoll, _ := ePoll.(*l8tpollaris.L8Pollaris)
 	if existPoll.Groups != nil {
 		for _, gName := range existPoll.Groups {
-			gEntry := this.getGroup(gName)
+			gEntry := this.groups[gName]
 			if gEntry != nil {
-				this.deleteFromGroup(gEntry, key)
+				delete(gEntry, key)
 			}
 		}
 	}
-	this.deleteFromKey2Name(key)
 }
 
 // AddAll adds multiple L8Pollaris configurations to the center.
@@ -164,16 +129,11 @@ func (this *PollarisCenter) Post(l8pollaris *l8tpollaris.L8Pollaris, isNotificat
 	}
 
 	key := this.PollarisKey(l8pollaris)
-	_, ok := this.getPollName(key)
-	if ok {
-		this.deleteExisting(l8pollaris, key)
-	}
 
-	this.name2Poll.Post(l8pollaris, isNotification)
-
+	// Hold write lock across cleanup and re-add to prevent races where
+	// concurrent readers see the key temporarily missing from key2Name.
 	this.mtx.Lock()
-	defer this.mtx.Unlock()
-
+	this.cleanupGroupsLocked(l8pollaris, key)
 	this.key2Name[key] = l8pollaris.Name
 	if l8pollaris.Groups != nil {
 		for _, gName := range l8pollaris.Groups {
@@ -185,6 +145,10 @@ func (this *PollarisCenter) Post(l8pollaris *l8tpollaris.L8Pollaris, isNotificat
 			gEntry[key] = l8pollaris.Name
 		}
 	}
+	this.mtx.Unlock()
+
+	this.name2Poll.Post(l8pollaris, isNotification)
+
 	return nil
 }
 
@@ -225,17 +189,11 @@ func (this *PollarisCenter) Put(l8pollaris *l8tpollaris.L8Pollaris, isNotificati
 	}
 
 	key := this.PollarisKey(l8pollaris)
-	_, ok := this.getPollName(key)
 
-	if ok {
-		this.deleteExisting(l8pollaris, key)
-	}
-
-	this.name2Poll.Put(l8pollaris, isNotification)
-
+	// Hold write lock across cleanup and re-add to prevent races where
+	// concurrent readers see the key temporarily missing from key2Name.
 	this.mtx.Lock()
-	defer this.mtx.Unlock()
-
+	this.cleanupGroupsLocked(l8pollaris, key)
 	this.key2Name[key] = l8pollaris.Name
 	if l8pollaris.Groups != nil {
 		for _, gName := range l8pollaris.Groups {
@@ -247,6 +205,10 @@ func (this *PollarisCenter) Put(l8pollaris *l8tpollaris.L8Pollaris, isNotificati
 			gEntry[key] = l8pollaris.Name
 		}
 	}
+	this.mtx.Unlock()
+
+	this.name2Poll.Put(l8pollaris, isNotification)
+
 	return nil
 }
 
