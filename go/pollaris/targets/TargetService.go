@@ -26,6 +26,7 @@ import (
 	"github.com/saichler/l8types/go/types/l8api"
 	"github.com/saichler/l8types/go/types/l8web"
 	"github.com/saichler/l8utils/go/utils/web"
+	"strconv"
 )
 
 const (
@@ -49,11 +50,11 @@ var Links TargetLinks
 //   - dbname: PostgreSQL database name
 //   - vnic: the virtual network interface for service communication
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	_, user, pass, _, err := vnic.Resources().Security().Credential(creds, dbname, vnic.Resources())
+	_, user, pass, port, err := vnic.Resources().Security().Credential(creds, dbname, vnic.Resources())
 	if err != nil {
 		panic(err)
 	}
-	db := openDBConection(dbname, user, pass)
+	db := openDBConection(dbname, user, pass, port)
 	p := postgres.NewPostgres(db, vnic.Resources())
 
 	callback := newTargetCallback(p)
@@ -107,10 +108,11 @@ func Target(targetId string, vnic ifs.IVNic) (*l8tpollaris.L8PTarget, error) {
 // openDBConection establishes a connection to the PostgreSQL database.
 // It uses localhost (127.0.0.1) on port 5432 with SSL disabled.
 // Panics if the connection cannot be established or ping fails.
-func openDBConection(dbname, user, pass string) *sql.DB {
+func openDBConection(dbname, user, pass, port string) *sql.DB {
+	p, _ := strconv.Atoi(port)
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		"127.0.0.1", 5432, user, pass, dbname)
+		"127.0.0.1", p, user, pass, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
 
 	if err != nil {
