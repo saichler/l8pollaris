@@ -50,11 +50,11 @@ var Links TargetLinks
 //   - dbname: PostgreSQL database name
 //   - vnic: the virtual network interface for service communication
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	_, user, pass, port, err := vnic.Resources().Security().Credential(creds, dbname, vnic.Resources())
+	realdb, user, pass, port, err := vnic.Resources().Security().Credential(creds, dbname, vnic.Resources())
 	if err != nil {
 		panic(err)
 	}
-	db := openDBConection(dbname, user, pass, port)
+	db := openDBConection(realdb, user, pass, port)
 	p := postgres.NewPostgres(db, vnic.Resources())
 
 	callback := newTargetCallback(p)
