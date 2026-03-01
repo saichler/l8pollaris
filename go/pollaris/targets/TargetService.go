@@ -51,6 +51,7 @@ var Links TargetLinks
 //   - vnic: the virtual network interface for service communication
 func Activate(creds, dbname string, vnic ifs.IVNic) {
 	realdb, user, pass, port, err := vnic.Resources().Security().Credential(creds, dbname, vnic.Resources())
+	fmt.Println("Creds:", creds, "Realdb:", realdb, "User:", user, "Port:", port)
 	if err != nil {
 		panic(err)
 	}
