@@ -53,8 +53,8 @@ message CJob {
   string linksId = 11;
   // arguments contains job-specific parameters
   map<string, string> arguments = 12;
-  // lastResult stores the previous collection result for comparison
-  bytes lastResult = 13;
+  // last_result_hash stores a FNV-1a hash of the previous result for change detection
+  uint64 last_result_hash = 13;
   // error_count tracks consecutive errors for adaptive handling
   int32 error_count = 14;
   // always indicates if this job runs on every cycle regardless of cadence
