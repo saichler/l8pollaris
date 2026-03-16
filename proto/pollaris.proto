@@ -98,7 +98,7 @@ enum L8PProtocol {
   // L8PSNMPV3 uses SNMP version 3 with authentication
   L8PSNMPV3 = 3;
   // L8PRESTCONF uses REST-based configuration protocol
-  L8PRESTCONF = 4;
+  L8PRESTAPI = 4;
   // L8PNETCONF uses Network Configuration Protocol
   L8PNETCONF = 5;
   // L8PGRPC uses gRPC for high-performance polling
