@@ -31,4 +31,6 @@ type TargetLinks interface {
 	// Persist returns the service name and area for the persistence service
 	// that should store data long-term for this target.
 	Persist(string) (string, byte)
+	// The model name
+	Model(string) (string, byte)
 }

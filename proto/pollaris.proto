@@ -110,7 +110,7 @@ enum L8PProtocol {
 // L8PAttribute defines a parsed attribute from collected data.
 message L8PAttribute {
   // property_id identifies the property this attribute maps to
-  string property_id = 1;
+  map<string, string> property_id = 1;
   // rules define parsing/transformation rules for this attribute
   repeated L8PRule rules = 2;
 }
