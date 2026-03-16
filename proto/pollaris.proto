@@ -46,6 +46,8 @@ message L8Pollaris {
   repeated string groups = 8;
   // polling maps job names to their polling configurations
   map<string, L8Poll> polling = 9;
+  // poll order
+  repeated string order = 10;
 }
 
 // L8Poll defines a single polling job configuration.
