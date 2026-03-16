@@ -32,5 +32,5 @@ type TargetLinks interface {
 	// that should store data long-term for this target.
 	Persist(string) (string, byte)
 	// The model name
-	Model(string) (string, byte)
+	Model(string) string
 }
