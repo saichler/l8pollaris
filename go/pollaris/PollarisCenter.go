@@ -43,7 +43,8 @@ type PollarisCenter struct {
 	// log provides logging capabilities for the center
 	log ifs.ILogger
 	// mtx protects concurrent access to key2Name and groups maps
-	mtx *sync.RWMutex
+	mtx                   *sync.RWMutex
+	localPollarisGetCache *sync.Map
 }
 
 // newPollarisCenter creates and initializes a new PollarisCenter instance.
@@ -52,6 +53,7 @@ type PollarisCenter struct {
 // The cache is created without synchronization (NoSync) for better performance.
 func newPollarisCenter(sla *ifs.ServiceLevelAgreement, vnic ifs.IVNic) *PollarisCenter {
 	pc := &PollarisCenter{}
+	pc.localPollarisGetCache = &sync.Map{}
 	pc.key2Name = make(map[string]string)
 	pc.groups = make(map[string]map[string]string)
 	pc.log = vnic.Resources().Logger()
@@ -115,6 +117,7 @@ func (this *PollarisCenter) AddAll(pollarises []*l8tpollaris.L8Pollaris) {
 // pollaris in the distributed cache and group mappings.
 // Returns an error if validation fails.
 func (this *PollarisCenter) Post(l8pollaris *l8tpollaris.L8Pollaris, isNotification bool) error {
+	this.localPollarisGetCache.Clear()
 	if l8pollaris.Name == "" {
 		return errors.New("Pollaris does not contain a Name")
 	}
@@ -175,6 +178,7 @@ func (this *PollarisCenter) addForInit(p *l8tpollaris.L8Pollaris) {
 // and stores the updated pollaris in the distributed cache.
 // Returns an error if validation fails.
 func (this *PollarisCenter) Put(l8pollaris *l8tpollaris.L8Pollaris, isNotification bool) error {
+	this.localPollarisGetCache.Clear()
 	if l8pollaris.Name == "" {
 		return errors.New("Pollaris does not contain a Name")
 	}
@@ -226,9 +230,16 @@ func (this *PollarisCenter) PollarisByName(name string) *l8tpollaris.L8Pollaris 
 	if this == nil || this.name2Poll == nil {
 		return nil
 	}
+	pcache, ok := this.localPollarisGetCache.Load(name)
+	if ok {
+		return pcache.(*l8tpollaris.L8Pollaris)
+	}
 	filter := &l8tpollaris.L8Pollaris{Name: name}
 	p, _ := this.name2Poll.Get(filter)
 	poll, _ := p.(*l8tpollaris.L8Pollaris)
+	if poll != nil {
+		this.localPollarisGetCache.Store(name, poll)
+	}
 	return poll
 }
 
