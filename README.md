@@ -5,7 +5,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen.svg)]()
 
-**© 2025 Sharon Aicler (saichler@gmail.com)**
+**© 2025-2026 Sharon Aicler (saichler@gmail.com)**
 
 **Layer 8 Data Mining Models (L8 Pollaris)** is an advanced **Polling/Parsing & Populating model service** designed for agnostic collection, parsing & populating abstract data mining models. It provides a highly flexible and extensible framework for defining device polling configurations and managing sophisticated collection operations across multiple protocols and device types in enterprise environments.
 
@@ -55,6 +55,7 @@ message L8Pollaris {
   string version = 7;
   repeated string groups = 8;
   map<string, L8Poll> polling = 9;
+  repeated string order = 10;       // Poll execution order
 }
 
 message L8Poll {
@@ -65,6 +66,14 @@ message L8Poll {
   L8PCadencePlan cadence = 5;
   int64 timeout = 6;
   repeated L8PAttribute attributes = 7;
+  string bodyName = 8;              // Request body template
+  string respName = 9;              // Response parser
+  bool always = 10;                 // Run on every cycle
+}
+
+message L8PAttribute {
+  map<string, string> property_id = 1;  // Model prefix → property path
+  repeated L8PRule rules = 2;
 }
 ```
 
@@ -111,6 +120,11 @@ message CJob {
   string host_id = 8;
   string pollaris_name = 9;
   string job_name = 10;
+  string linksId = 11;              // Routing identifier
+  map<string, string> arguments = 12;  // Job parameters
+  uint64 last_result_hash = 13;     // FNV-1a hash for change detection
+  int32 error_count = 14;           // Consecutive error counter
+  bool always = 15;                 // Run on every cycle
 }
 ```
 
@@ -146,27 +160,22 @@ L8 Pollaris can manage various infrastructure target types:
 
 ## Recent Updates & Improvements
 
-### Latest Enhancements (December 2025)
+### Latest Enhancements (March 2026)
 
-The following major improvements have been implemented in the latest version:
+- **Multi-Model Attribute Mapping**: `L8PAttribute.PropertyId` changed from `string` to `map<string, string>`, enabling a single polling configuration to map OIDs/attributes to multiple device models simultaneously (e.g., both `networkdevice` and `gpudevice`)
+- **Poll Execution Order**: Added `order` field to `L8Pollaris` to control the sequence in which polling jobs are executed
+- **Local Get Cache**: Added `localPollarisGetCache` (sync.Map) for high-performance per-name caching of frequently accessed configurations
+- **Hash-Based Change Detection**: `CJob.last_result_hash` stores FNV-1a hash of previous results, enabling efficient change detection without full data comparison
+- **Extended Job Metadata**: Added `linksId`, `arguments`, `error_count`, and `always` fields to `CJob` for richer job execution context
+- **Always-Run Jobs**: `L8Poll.always` flag marks jobs that run on every collection cycle regardless of cadence
+- **Request/Response Templates**: `L8Poll.bodyName` and `respName` fields for protocol-specific request body and response parser templates
 
-- **Apache 2.0 Licensing**: Added comprehensive Apache License 2.0 headers to all source files
-- **Target Management System**: Introduced full-featured target lifecycle management with:
-  - PostgreSQL-backed persistent storage via ORM
-  - Round-robin load balancing to collectors
-  - Bulk start/stop operations by target type
-  - Address validation to prevent duplicate entries
-  - Automatic target recovery on service restart
-- **Enhanced Target States**: Support for Up, Down, Maintenance, and Offline states
-- **Multi-Collector Architecture**: Targets are distributed across collectors using round-robin for load balancing
+### Previous Enhancements (December 2025)
+
+- **Target Management System**: Full-featured target lifecycle management with PostgreSQL-backed persistent storage, round-robin load balancing to collectors, bulk start/stop operations, address validation, and automatic recovery on restart
 - **TargetLinks Abstraction**: Pluggable routing layer for directing targets to collectors, parsers, caches, and persistence
-
-### Previous Enhancements
-
-- **Enhanced Initialization Logging**: Comprehensive logging during PollarisCenter initialization to track init elements and service startup
-- **Improved Cache Management**: Implemented `NewDistributedCacheNoSync` for better performance and control over synchronization
-- **Initialization Data Handling**: Added dedicated `addForInit()` method for proper handling of initialization elements without triggering distributed cache events
-- **Service Reliability**: Enhanced error handling and validation throughout the initialization process
+- **Enhanced Initialization Logging**: Comprehensive logging during PollarisCenter initialization
+- **Improved Cache Management**: `NewDistributedCacheNoSync` for better performance and control over synchronization
 
 ## Getting Started
 
@@ -232,11 +241,11 @@ This uses Docker to run the Protocol Buffer compiler and generates Go bindings i
 ```go
 import (
     "github.com/saichler/l8pollaris/go/pollaris"
-    "github.com/saichler/l8pollaris/go/types"
+    "github.com/saichler/l8pollaris/go/types/l8tpollaris"
 )
 
 // Create a new polling configuration
-pollarisConfig := &types.Pollaris{
+pollarisConfig := &l8tpollaris.L8Pollaris{
     Name:     "cisco-ios-xe",
     Vendor:   "cisco",
     Series:   "catalyst",
@@ -244,35 +253,32 @@ pollarisConfig := &types.Pollaris{
     Software: "ios-xe",
     Version:  "17.3",
     Groups:   []string{"switches", "enterprise"},
-    Polling: map[string]*types.Poll{
+    Order:    []string{"interface-stats", "system-info"},
+    Polling: map[string]*l8tpollaris.L8Poll{
         "interface-stats": {
             Name:      "interface-stats",
             What:      "1.3.6.1.2.1.2.2.1",
-            Operation: types.Operation_OTable,
-            Protocol:  types.Protocol_PSNMPV2,
-            Cadence:   60000, // 60 seconds
-            Timeout:   5000,  // 5 seconds
+            Operation: l8tpollaris.L8C_L8C_Table,
+            Protocol:  l8tpollaris.L8PProtocol_L8PPSNMPV2,
+            Timeout:   5000, // 5 seconds
+            Attributes: []*l8tpollaris.L8PAttribute{
+                {
+                    PropertyId: map[string]string{
+                        "networkdevice": "networkdevice.interfaces.ifDescr",
+                    },
+                },
+            },
         },
     },
 }
 ```
 
-### Service Integration
+### Service Activation
 
 ```go
-// Register and activate the Pollaris service
-resources.Registry().Register(&types.Pollaris{})
-resources.Services().Activate(
-    pollaris.ServiceType, 
-    pollaris.ServiceName, 
-    0, 
-    resources, 
-    listener,
-)
-
-// Access the Pollaris center
-center := pollaris.Pollaris(resources)
-err := center.Add(pollarisConfig, false)
+// Activate the Pollaris service on a VNic
+// This loads all boot polling models and registers the service
+err := pollaris.Activate(vnic)
 ```
 
 ## API Reference
@@ -307,6 +313,7 @@ L8 Pollaris integrates with several Layer8 components:
 - **l8bus**: Message bus and overlay networking with health monitoring
 - **l8orm**: Object-relational mapping for persistent storage
 - **l8ql**: Query language interpreter for data retrieval
+- **l8reflect**: Reflection utilities for type introspection
 - **probler**: Infrastructure probing framework
 
 ## Contributing
@@ -322,21 +329,26 @@ L8 Pollaris integrates with several Layer8 components:
 
 ## Testing
 
-The project includes comprehensive unit tests. Key test areas:
+The project includes integration tests using a simulated distributed topology with multiple nodes. Key test areas:
 
-- Pollaris configuration management
-- Service lifecycle operations
+- Pollaris configuration management and boot data loading
+- Service lifecycle operations (registration, activation)
 - Group-based polling retrieval
 - Key-based lookup functionality
+- Target CRUD operations with PostgreSQL backend
+- Bulk target creation and collector distribution
 
 Run tests with:
 ```bash
+cd go
+./test.sh
+# Or directly:
 go test -v ./tests/...
 ```
 
 ## License
 
-© 2025 Sharon Aicler (saichler@gmail.com)
+© 2025-2026 Sharon Aicler (saichler@gmail.com)
 
 This project is licensed under the Apache License, Version 2.0. You may obtain a copy of the License at:
 
@@ -350,29 +362,31 @@ Unless required by applicable law or agreed to in writing, software distributed 
 l8pollaris/
 ├── LICENSE                 # Apache 2.0 license
 ├── README.md               # This file
-├── web.html                # Project website
 ├── go/                     # Go source code
 │   ├── go.mod              # Go module definition
 │   ├── go.sum              # Go module checksums
+│   ├── test.sh             # Test runner with coverage
 │   ├── pollaris/           # Main service implementation
 │   │   ├── PollarisService.go    # Service interface implementation
-│   │   ├── PollarisCenter.go     # Central management logic
-│   │   ├── PollarisUtils.go      # Utility functions
+│   │   ├── PollarisCenter.go     # Central management hub with distributed cache
+│   │   ├── PollarisUtils.go      # Key generation utilities
 │   │   └── targets/              # Target management subsystem
-│   │       ├── TargetService.go      # Target service with ORM
-│   │       ├── TargetCallback.go     # Lifecycle callbacks
-│   │       ├── TargetLinks.go        # Routing abstraction
-│   │       ├── InitTargets.go        # Target initialization
-│   │       └── StartStopTargets.go   # Bulk operations
-│   ├── tests/              # Unit tests
-│   │   ├── Pollaris_test.go          # Pollaris test suite
+│   │       ├── TargetService.go      # ORM-based target service (PostgreSQL)
+│   │       ├── TargetCallback.go     # Lifecycle callbacks & validation
+│   │       ├── TargetLinks.go        # Pluggable routing abstraction
+│   │       ├── InitTargets.go        # Target initialization & recovery
+│   │       └── StartStopTargets.go   # Bulk start/stop operations
+│   ├── tests/              # Integration tests
+│   │   ├── Pollaris_test.go          # Pollaris service tests
 │   │   ├── TargetService_test.go     # Target service tests
-│   │   └── TestInit.go               # Test initialization
-│   └── types/l8tpollaris/  # Generated Protocol Buffer types
-│       ├── pollaris.pb.go        # Pollaris message types
-│       ├── targets.pb.go         # Target message types
-│       └── jobs.pb.go            # Collection job types
+│   │   └── TestInit.go               # Test topology setup
+│   ├── types/l8tpollaris/  # Generated Protocol Buffer types
+│   │   ├── pollaris.pb.go        # Pollaris message types
+│   │   ├── targets.pb.go         # Target message types
+│   │   └── jobs.pb.go            # Collection job types
+│   └── vendor/             # Vendored dependencies
 └── proto/                  # Protocol Buffer definitions
+    ├── make-bindings.sh    # Proto compilation script
     ├── pollaris.proto      # Core polling configuration
     ├── targets.proto       # Target and host types
     └── jobs.proto          # Collection job types
