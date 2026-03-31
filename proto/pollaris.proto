@@ -107,6 +107,8 @@ enum L8PProtocol {
   L8PKubectl = 7;
   // L8PGraphQL uses GraphQL for flexible API queries
   L8PGraphQL = 8;
+  // L8PKubernetesAPI uses client-go with an internal cache for Kubernetes polling
+  L8PKubernetesAPI = 9;
 }
 
 // L8PAttribute defines a parsed attribute from collected data.
