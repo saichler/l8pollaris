@@ -69,6 +69,8 @@ enum L8PTargetType {
   Storage = 6;
   // Power represents power distribution and UPS systems
   Power = 7;
+  // Vending_Machine represents smart vending machines
+  Vending_Machine = 8;
 }
 
 // L8PTarget represents a device or system to be monitored.
@@ -147,6 +149,16 @@ message AuthInfo {
   string api_user = 9;
   // api_key is the API key value
   string api_key = 10;
+  // session_auth indicates cookie-based session authentication
+  bool session_auth = 11;
+  // session_page is the URL path to visit after login to establish session context
+  string session_page = 12;
+  // csrf_source is the URL path to fetch for CSRF token extraction
+  string csrf_source = 13;
+  // csrf_pattern is the regex pattern for CSRF token extraction
+  string csrf_pattern = 14;
+  // preset_cookies are cookies to pre-set on the cookie jar before login
+  map<string, string> preset_cookies = 15;
 }
 
 // CMap represents collected key-value map data.

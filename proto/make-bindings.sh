@@ -4,9 +4,9 @@ wget https://raw.githubusercontent.com/saichler/l8types/refs/heads/main/proto/se
 wget https://raw.githubusercontent.com/saichler/l8types/refs/heads/main/proto/api.proto
 
 # Use the protoc image to run protoc.sh and generate the bindings.
-docker run --user "$(id -u):$(id -g)" -e PROTO=pollaris.proto --mount type=bind,source="$PWD",target=/home/proto/ -it saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=targets.proto --mount type=bind,source="$PWD",target=/home/proto/ -it saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=jobs.proto --mount type=bind,source="$PWD",target=/home/proto/ -it saichler/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=pollaris.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=targets.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=jobs.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
 
 rm -rf ./services.proto
 rm -rf ./api.proto
